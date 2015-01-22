@@ -18,7 +18,7 @@ import java.util.ArrayList;
 public class Servidor extends Thread {
 
     public static int MAX_COLA = 4;
-    protected static ArrayList<Cliente> clientes;
+    public static ArrayList<Cliente> clientes;
     
     private ServerSocket listener;
     private int puerto;
