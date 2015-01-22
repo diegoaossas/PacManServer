@@ -70,32 +70,33 @@ public class Cliente implements Runnable {
     private void readAction() throws IOException
     {
         action = in.readLine();
-        System.out.println("Action:"+action);
+        System.out.println("");
+        System.out.println("Accion: " + action);
 
+        if(action == null)
+            throw new IOException("Socket Cerrado(?)");
+        
         if(action.equals("login"))
         {
             usuario = in.readLine();
-            System.out.println("Usuario:"+usuario);
+            System.out.println("Usuario: " + usuario);
             clave = in.readLine();
-            System.out.println("Clave:"+clave);
+            System.out.println("Clave: " + clave);
             success = false;
             if(usuario.equals("diego") && clave.equals("diego013"))
             {
                 Servidor.clientes.add(this);
-                System.out.println("Logeado:"+success);
-                System.out.println("Cliente conectado: " + clientes.size());
                 success = true;
             }
             out.println(success);
-
-            for(Cliente cl:Servidor.clientes)
-            {
-                cl.send("hola");
-                System.out.println("Enviando a:" + cl.usuario);
-            }
+            System.out.println("Acceso: " + success);
+            
+            System.out.println("Cliente conectado: " + clientes.size());
         }
         else
+        {
             read();
+        }
     }
 
     public void send(String data) {
