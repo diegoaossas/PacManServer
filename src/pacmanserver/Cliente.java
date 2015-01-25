@@ -8,6 +8,7 @@ package pacmanserver;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import static pacmanserver.Servidor.clientes;
@@ -19,8 +20,8 @@ import static pacmanserver.Servidor.clientes;
  */
 public class Cliente implements Runnable {
 
-    private Socket socket;
-    private Servidor server;
+    private final Socket socket;
+    private final Servidor server;
     private BufferedReader in;
     private PrintWriter out;
     
@@ -83,12 +84,26 @@ public class Cliente implements Runnable {
             clave = in.readLine();
             System.out.println("Clave: " + clave);
             success = false;
-            if(usuario.equals("diego") && clave.equals("diego013"))
+            if(usuario.equals("a") && clave.equals("a"))
             {
                 Servidor.clientes.add(this);
                 success = true;
             }
             out.println(success);
+            
+            Usuario usu = new Usuario();
+            usu.ID = 2;
+            usu.Usuario = "diegoaossas";
+            usu.Nickname = "Azzshifto";
+            usu.pGanadas = 231;
+            usu.pJugadas = 321;
+            usu.pPerdidas = 21;
+            
+            if(success){
+                ObjectOutputStream ooS = new ObjectOutputStream(socket.getOutputStream());
+                ooS.writeObject(usu);
+            }
+            
             System.out.println("Acceso: " + success);
             
             System.out.println("Cliente conectado: " + clientes.size());

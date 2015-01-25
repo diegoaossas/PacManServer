@@ -20,15 +20,15 @@ public class Servidor extends Thread {
     public static int MAX_COLA = 4;
     public static ArrayList<Cliente> clientes;
     
-    private ServerSocket listener;
-    private int puerto;
+    private final ServerSocket listener;
+    private final int puerto;
     
 
     public Servidor(int puerto) throws IOException
     {
         this.puerto = puerto;
         listener = new ServerSocket(puerto, MAX_COLA, InetAddress.getLocalHost());
-        clientes = new ArrayList<Cliente>();
+        clientes = new ArrayList<>();
     }
 
     @Override
@@ -40,7 +40,7 @@ public class Servidor extends Thread {
             {
                 System.out.println("Esperando conexiones...");
                 Socket socket = listener.accept();
-                System.out.println("Conexion entrante desde: "+ socket.getInetAddress());
+                System.out.println("Conexion entrante desde: " + socket.getInetAddress());
                 Cliente client = new Cliente(socket, this);
                 new Thread(client).start();
             }
