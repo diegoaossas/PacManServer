@@ -5,16 +5,13 @@
  */
 package pacmanserver;
 
-import java.io.Serializable;
-
 /**
  *
  * @author Diego
  */
-public class Usuario implements Serializable {
-    public int ID;
-    public String Usuario;
-    public int pJugadas;
-    public int pGanadas;
-    public int pPerdidas;
+
+public enum Actions
+{
+    LOGIN,
+    REGISTRO
 }

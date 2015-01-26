@@ -5,13 +5,10 @@
  */
 package pacmanserver;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.net.Socket;
-import static pacmanserver.Servidor.clientes;
 
 
 /**
@@ -21,18 +18,14 @@ import static pacmanserver.Servidor.clientes;
 public class Cliente implements Runnable {
 
     private final Socket socket;
-    private final Servidor server;
-    private BufferedReader in;
-    private PrintWriter out;
-    
-    String action;
-    String usuario;
-    String clave;
+    private ObjectInputStream in;
+    private ObjectOutputStream out;
+
     boolean success = false;
 
-    public Cliente(Socket sock, Servidor serv) {
+    public Cliente(Socket sock)
+    {
         socket = sock;
-        server = serv;
         in = null;
         out = null;
     }
@@ -41,16 +34,17 @@ public class Cliente implements Runnable {
     public void run() {
         try
         {
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            out = new PrintWriter(socket.getOutputStream(), true);
+            out = new ObjectOutputStream(socket.getOutputStream());
+            in = new ObjectInputStream(socket.getInputStream());
 
             while (true)
             {
-                readAction();
+                procesaData();
             }
-        } catch (IOException e)
+        }
+        catch (IOException | ClassNotFoundException e)
         {
-            System.out.println("Error:"+e.getMessage());
+            System.out.println("Error: " + e.getMessage());
         }
         finally
         {
@@ -58,64 +52,37 @@ public class Cliente implements Runnable {
         }
     }
     
-    public void read() throws IOException
+    public void procesaData() throws IOException, ClassNotFoundException
     {
-        String leido = in.readLine();
+        Actions action = (Actions)in.readObject();
         
-        if(leido == null)
-            throw new IOException();
-        
-        System.out.println("Recibido:" + leido);
-    }
-    
-    private void readAction() throws IOException
-    {
-        action = in.readLine();
-        System.out.println("");
-        System.out.println("Accion: " + action);
-
-        if(action == null)
-            throw new IOException("Socket Cerrado(?)");
-        
-        if(action.equals("login"))
+        if(action == Actions.LOGIN)
         {
-            usuario = in.readLine();
-            System.out.println("Usuario: " + usuario);
-            clave = in.readLine();
-            System.out.println("Clave: " + clave);
             success = false;
-            if(usuario.equals("a") && clave.equals("a"))
-            {
-                Servidor.clientes.add(this);
+            System.out.println("Solicitud de login recibida.");
+            
+            Credenciales cred = (Credenciales)in.readObject();
+            System.out.println("Credenciales recibidas.");
+            
+            if(cred.usuario.equals("a") && cred.clave.equals("a"))
                 success = true;
+            
+            out.writeObject(success);
+            System.out.println("Resultado de login enviado -> " + success);
+            
+            if(success)
+            {
+                //Enviar usuario de prueba
+                Usuario usu = new Usuario();
+                usu.ID = 1;
+                usu.Usuario = "diegoaossas";
+                usu.pGanadas = 2323;
+                usu.pJugadas = 6923;
+                usu.pPerdidas = 0;
+                
+                out.writeObject(usu);
+                System.out.println("Login completo, usuario enviado -> " + usu.Usuario);
             }
-            out.println(success);
-            
-            Usuario usu = new Usuario();
-            usu.ID = 2;
-            usu.Usuario = "diegoaossas";
-            usu.Nickname = "Azzshifto";
-            usu.pGanadas = 231;
-            usu.pJugadas = 321;
-            usu.pPerdidas = 21;
-            
-            if(success){
-                ObjectOutputStream ooS = new ObjectOutputStream(socket.getOutputStream());
-                ooS.writeObject(usu);
-            }
-            
-            System.out.println("Acceso: " + success);
-            
-            System.out.println("Cliente conectado: " + clientes.size());
-        }
-        else
-        {
-            read();
         }
     }
-
-    public void send(String data) {
-        out.println(data);
-    }
-
 }
