@@ -26,6 +26,7 @@ public class GUI extends javax.swing.JFrame {
         try
         {
             server = new Servidor(3000);
+            this.setLocationRelativeTo(null);
         }
         catch (IOException ex)
         {
@@ -108,6 +109,7 @@ public class GUI extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(GUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
+
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
