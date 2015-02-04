@@ -83,6 +83,8 @@ public class Cliente implements Runnable {
                 out.writeObject(usu);
                 System.out.println("Login completo, usuario enviado -> " + usu.Usuario);
             }
+            else
+                socket.close();
         }
     }
 }
