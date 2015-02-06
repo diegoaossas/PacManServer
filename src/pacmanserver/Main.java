@@ -11,7 +11,7 @@ import java.io.IOException;
  *
  * @author Diego
  */
-public class PacManServer {
+public class Main {
     
     /**
      * @param args the command line arguments
@@ -20,8 +20,8 @@ public class PacManServer {
     {
         try
         {
-            Servidor serv = new Servidor(3000);
-            serv.start();
+            Servidor servidor = new Servidor(3000);
+            servidor.start();
         }
         catch (IOException ex)
         {

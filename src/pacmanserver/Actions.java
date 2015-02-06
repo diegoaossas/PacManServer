@@ -13,5 +13,8 @@ package pacmanserver;
 public enum Actions
 {
     LOGIN,
-    REGISTRO
+    REGISTRO,
+    NEWLOBBY,
+    GETLOBBYS,
+    GETLOBBYSstream, GETLOBBYSstreamStop
 }
