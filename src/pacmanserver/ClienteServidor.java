@@ -5,10 +5,15 @@
  */
 package pacmanserver;
 
+import Libreria.Actions;
+import Libreria.Credenciales;
+import Libreria.Sala;
+import Libreria.Usuario;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,7 +22,7 @@ import java.util.logging.Logger;
  *
  * @author Diego
  */
-public class PacCliente implements Runnable{
+public class ClienteServidor implements Runnable{
 
     private final Socket socket;
     private ObjectInputStream in;
@@ -27,7 +32,7 @@ public class PacCliente implements Runnable{
     public Usuario usuarioLog;
     private boolean success;
 
-    public PacCliente(Socket sock)
+    public ClienteServidor(Socket sock)
     {
         this.success = false;
         this.socket = sock;
@@ -43,8 +48,6 @@ public class PacCliente implements Runnable{
             this.out = new ObjectOutputStream(socket.getOutputStream());
             this.in = new ObjectInputStream(socket.getInputStream());
             Servidor.clientes.add(this);
-            
-
             
             while (true)
             {
@@ -109,7 +112,9 @@ public class PacCliente implements Runnable{
         if(action == Actions.GETLOBBYS)
         {
             System.out.println("Solicitud GETLOBBYS.");
-            out.writeObject(Servidor.listaSalas.getSalas());
+            ArrayList<Sala> salas = Servidor.listaSalas.getSalas();
+            
+            out.writeObject(salas);
         }       
         
         if(action == Actions.GETLOBBYSstream)
@@ -133,7 +138,7 @@ public class PacCliente implements Runnable{
                         }
                         
                     } catch (IOException ex) {
-                        Logger.getLogger(PacCliente.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(ClienteServidor.class.getName()).log(Level.SEVERE, null, ex);
                         break;
                     }
                 }

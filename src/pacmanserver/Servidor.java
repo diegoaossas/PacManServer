@@ -18,7 +18,7 @@ import java.util.ArrayList;
 public class Servidor extends Thread {
 
     public static PacListLobby listaSalas;
-    public static ArrayList<PacCliente> clientes;
+    public static ArrayList<ClienteServidor> clientes;
     
     private final ServerSocket listener;
     private final int MAX_COLA = 200;
@@ -41,7 +41,7 @@ public class Servidor extends Thread {
                 System.out.println("Esperando conexiones...");
                 Socket socket = listener.accept();
                 System.out.println("Conexion entrante desde: " + socket.getInetAddress());
-                PacCliente client = new PacCliente(socket);
+                ClienteServidor client = new ClienteServidor(socket);
                 new Thread(client).start();
             }
             catch (IOException e)

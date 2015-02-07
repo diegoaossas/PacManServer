@@ -8,27 +8,28 @@ package pacmanserver;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import Libreria.Sala;
 
 /**
  *
  * @author Diego
  */
-public class PacLobby implements Serializable{
-    private final long idLobby;
-    private final String nombreLobby;
+public class SalaServidor implements Serializable{    
+    private transient final ClienteServidor propietario;
+    private transient final List<ClienteServidor> jugadores;
+    private Sala pacLobby;
     
-    private transient final PacCliente propietario;
-    private transient final List<PacCliente> jugadores;
-    
-    public PacLobby(long idLobby, String nombreLobby, PacCliente propietario)
+    public SalaServidor(long idSala, String nombreSala, ClienteServidor propietario)
     {
-        this.idLobby = idLobby;
-        this.nombreLobby = nombreLobby;
+        this.pacLobby = new Sala();
+        this.pacLobby.idSala = idSala;
+        this.pacLobby.nombreSala = nombreSala;
+        
         this.propietario = propietario;
         this.jugadores = new ArrayList<>(3);
     }
     
-    public boolean AgregaJugador(PacCliente jugador)
+    public boolean AgregaJugador(ClienteServidor jugador)
     {
         if(jugadores.contains(jugador))
             return true;
@@ -40,13 +41,8 @@ public class PacLobby implements Serializable{
         return true;
     }
     
-    public long getID()
+    public Sala getSala()
     {
-        return this.idLobby;
-    }
-    
-    public String getNombre()
-    {
-        return this.nombreLobby;
+        return this.pacLobby;
     }
 }

@@ -5,6 +5,7 @@
  */
 package pacmanserver;
 
+import Libreria.Sala;
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -13,7 +14,7 @@ import java.util.ArrayList;
  * @author Diego
  */
 public class PacListLobby  implements Serializable{
-    private final ArrayList<PacLobby> salas;
+    private final ArrayList<SalaServidor> salas;
     private long contador;
     
     public PacListLobby()
@@ -22,19 +23,31 @@ public class PacListLobby  implements Serializable{
         contador = 0;
     }
     
-    public boolean CrearSala(String nombreSala, PacCliente propietario)
+    public boolean CrearSala(String nombreSala, ClienteServidor propietario)
     {
-        PacLobby sala = new PacLobby(contador++, "Sala de " + propietario.usuarioLog.Usuario, propietario);
+        SalaServidor sala = new SalaServidor(contador++, "Sala de " + propietario.usuarioLog.Usuario, propietario);
         salas.add(sala);
         
-        System.out.println("CrearSala(): Sala (" + sala.getNombre() + " - ID: " + sala.getID() + ") creada.");
+        System.out.println("CrearSala(): Sala (" + sala.getSala().getNombre() + " - ID: " + sala.getSala().getID() + ") creada.");
         System.out.println(salas.size() + " salas actualmente.");
         
         return true;
     }
     
-    public ArrayList<PacLobby> getSalas()
+    public ArrayList<SalaServidor> getSalasServidor()
     {
-        return (ArrayList<PacLobby>)salas.clone();
+        return (ArrayList<SalaServidor>)salas.clone();
+    }
+    
+    public ArrayList<Sala> getSalas()
+    {
+        ArrayList<Sala> listaSalas = new ArrayList<>();
+        
+        for(SalaServidor sala : salas)
+        {
+            listaSalas.add(sala.getSala());
+        }
+        
+        return listaSalas;
     }
 }
