@@ -15,9 +15,11 @@ import Libreria.Sala;
  * @author Diego
  */
 public class SalaServidor implements Serializable{    
-    private transient final ClienteServidor propietario;
-    private transient final List<ClienteServidor> jugadores;
-    private Sala pacLobby;
+    private static final long serialVersionUID = 1L;
+    
+    private final ClienteServidor propietario;
+    private final List<ClienteServidor> jugadores;
+    private final Sala pacLobby;
     
     public SalaServidor(long idSala, String nombreSala, ClienteServidor propietario)
     {

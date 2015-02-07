@@ -25,10 +25,10 @@ public class PacListLobby  implements Serializable{
     
     public boolean CrearSala(String nombreSala, ClienteServidor propietario)
     {
-        SalaServidor sala = new SalaServidor(contador++, "Sala de " + propietario.usuarioLog.Usuario, propietario);
+        SalaServidor sala = new SalaServidor(contador++, "Sala de " + propietario.getUsuarioLog().Usuario, propietario);
         salas.add(sala);
         
-        System.out.println("CrearSala(): Sala (" + sala.getSala().getNombre() + " - ID: " + sala.getSala().getID() + ") creada.");
+        System.out.println("CrearSala(): Sala (" + sala.getSala().nombreSala + " - ID: " + sala.getSala().idSala + ") creada.");
         System.out.println(salas.size() + " salas actualmente.");
         
         return true;

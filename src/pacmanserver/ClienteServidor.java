@@ -23,13 +23,12 @@ import java.util.logging.Logger;
  * @author Diego
  */
 public class ClienteServidor implements Runnable{
-
     private final Socket socket;
     private ObjectInputStream in;
     private ObjectOutputStream out;
     private Thread lobbyStream;
     
-    public Usuario usuarioLog;
+    private Usuario usuarioLog;
     private boolean success;
 
     public ClienteServidor(Socket sock)
@@ -76,7 +75,7 @@ public class ClienteServidor implements Runnable{
             Credenciales cred = (Credenciales)in.readObject();
             System.out.println("Credenciales recibidas.");
             
-            if(cred.usuario.equals("a") && cred.clave.equals("a"))
+            if(cred.getUsuario().equals("a") && cred.getClave().equals("a"))
                 success = true;
             
             out.writeObject(success);
@@ -93,17 +92,20 @@ public class ClienteServidor implements Runnable{
                 usu.pPerdidas = 0;
                 
                 usuarioLog = usu;
-                out.writeObject(usuarioLog);
+                out.writeObject(getUsuarioLog());
                 System.out.println("Login completo, usuario enviado -> " + usu.Usuario);
             }
             else
+            {
                 socket.close();
+            }
         }
         
         if(action == Actions.NEWLOBBY)
         {
             System.out.println("Solicitud NEWLOBBY.");
-            if(usuarioLog == null)
+            
+            if(getUsuarioLog() == null)
                 return;
             
             Servidor.listaSalas.CrearSala("nombre", this);
@@ -153,5 +155,13 @@ public class ClienteServidor implements Runnable{
             this.lobbyStream.interrupt();
             this.lobbyStream = null;
         }
+    }
+
+    /**
+     * @return the usuarioLog
+     */
+    public Usuario getUsuarioLog()
+    {
+        return usuarioLog;
     }
 }

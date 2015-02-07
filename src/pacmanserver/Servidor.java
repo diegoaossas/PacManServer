@@ -16,7 +16,6 @@ import java.util.ArrayList;
  * @author Diego
  */
 public class Servidor extends Thread {
-
     public static PacListLobby listaSalas;
     public static ArrayList<ClienteServidor> clientes;
     
