@@ -116,28 +116,37 @@ public class PacCliente implements Runnable{
         {
             System.out.println("Solicitud GETLOBBYSstream.");
             
-            //Arreglar este hilo y el del clinete :/
-            Thread lobbyStream1 = new Thread(() ->{
+            lobbyStream = new Thread(() ->{
                 while(true)
                 {
                     try {                               
-                        out.writeObject(Servidor.listaSalas.getSalas());
-                        Thread.currentThread().sleep(1000);
+                        out.writeObject(Servidor.listaSalas.getSalas());       
                         
-                    } catch (IOException | InterruptedException ex) {
+                        try
+                        {
+                            Thread.sleep(1000);
+                        }
+                        catch ( InterruptedException e)
+                        {
+                            Thread.currentThread().interrupt(); // restore interrupted status
+                            break;
+                        }
+                        
+                    } catch (IOException ex) {
                         Logger.getLogger(PacCliente.class.getName()).log(Level.SEVERE, null, ex);
                         break;
                     }
                 }
             });
             
-            lobbyStream1.start();
+            lobbyStream.start();
         }        
         
         if(action == Actions.GETLOBBYSstreamStop)
         {
             System.out.println("Solicitud GETLOBBYSstreamStop.");
             this.lobbyStream.interrupt();
+            this.lobbyStream = null;
         }
     }
 }
