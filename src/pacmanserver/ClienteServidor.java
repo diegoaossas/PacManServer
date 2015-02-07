@@ -7,6 +7,7 @@ package pacmanserver;
 
 import Libreria.Actions;
 import Libreria.Credenciales;
+import Libreria.Respuesta;
 import Libreria.Sala;
 import Libreria.Usuario;
 import java.io.IOException;
@@ -76,13 +77,10 @@ public class ClienteServidor implements Runnable{
             System.out.println("Credenciales recibidas.");
             
             if(cred.usuario.equals("a") && cred.clave.equals("a"))
-                success = true;
-            
-            out.writeObject(success);
-            System.out.println("Resultado de login enviado -> " + success);
-            
-            if(success)
             {
+                success = true;
+                out.writeObject(Respuesta.LOGGED);
+
                 //Enviar usuario de prueba
                 Usuario usu = new Usuario();
                 usu.ID = 1;
@@ -90,13 +88,14 @@ public class ClienteServidor implements Runnable{
                 usu.pGanadas = 2323;
                 usu.pJugadas = 6923;
                 usu.pPerdidas = 0;
-                
+
                 usuarioLog = usu;
                 out.writeObject(getUsuarioLog());
                 System.out.println("Login completo, usuario enviado -> " + usu.Usuario);
             }
             else
             {
+                out.writeObject(Respuesta.NOLOGGED);
                 socket.close();
             }
         }
