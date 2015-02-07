@@ -75,7 +75,7 @@ public class ClienteServidor implements Runnable{
             Credenciales cred = (Credenciales)in.readObject();
             System.out.println("Credenciales recibidas.");
             
-            if(cred.getUsuario().equals("a") && cred.getClave().equals("a"))
+            if(cred.usuario.equals("a") && cred.clave.equals("a"))
                 success = true;
             
             out.writeObject(success);
