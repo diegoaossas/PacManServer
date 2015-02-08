@@ -19,35 +19,69 @@ public class PacListLobby  implements Serializable{
     
     public PacListLobby()
     {
-        salas = new ArrayList<>();
+        salas = new ArrayList<SalaServidor>();
         contador = 0;
     }
-    
-    public boolean CrearSala(String nombreSala, ClienteServidor propietario)
+
+    public long CrearSala(Sala sala, ClienteServidor propietario)
     {
-        SalaServidor sala = new SalaServidor(contador++, "Sala de " + propietario.getUsuarioLog().Usuario, propietario);
-        salas.add(sala);
+        contador++;
         
-        System.out.println("CrearSala(): Sala (" + sala.getSala().nombreSala + " - ID: " + sala.getSala().idSala + ") creada.");
+        SalaServidor salaServidor = new SalaServidor(contador, sala, propietario);
+        salas.add(salaServidor);
+        
+        System.out.println("CrearSala(): Sala (" + salaServidor.pacLobby.nombreSala + " - ID: " + salaServidor.pacLobby.idSala + ") creada.");
         System.out.println(salas.size() + " salas actualmente.");
         
-        return true;
-    }
-    
-    public ArrayList<SalaServidor> getSalasServidor()
-    {
-        return (ArrayList<SalaServidor>)salas.clone();
+        return contador;
     }
     
     public ArrayList<Sala> getSalas()
     {
         ArrayList<Sala> listaSalas = new ArrayList<>();
         
-        for(SalaServidor sala : salas)
+        for(SalaServidor salaServ : salas)
         {
-            listaSalas.add(sala.getSala());
+            Sala sala = salaServ.pacLobby;
+            listaSalas.add(sala);
+            System.out.println("PacListLobby::getSalas() -> Sala " + sala.nombreSala + " con " + sala.jugadoresEnSala + " de " + sala.maxjugadores);
         }
         
         return listaSalas;
+    }
+    
+    public int getCantSalas()
+    {
+        return salas.size();
+    }
+    
+    public Sala getSala(long id)
+    {
+        for(SalaServidor salaServ : salas)
+        {
+            Sala sala = salaServ.pacLobby;
+            
+            if(sala.idSala == id)
+            {
+                System.out.println("PacListLobby::getSala() -> Sala " + sala.nombreSala + " con " + sala.jugadoresEnSala + " de " + sala.maxjugadores);
+                return sala;
+            }
+        }
+        return null;
+    }
+    
+    public SalaServidor getSalaServidor(long id)
+    {
+        for(SalaServidor salaServ : salas)
+        {
+            Sala sala = salaServ.pacLobby;
+            
+            if(sala.idSala == id)
+            {
+                System.out.println("PacListLobby::getSalaServidor() -> Sala " + sala.nombreSala + " con " + sala.jugadoresEnSala + " de " + sala.maxjugadores);
+                return salaServ;
+            }
+        }
+        return null;
     }
 }

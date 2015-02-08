@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import Libreria.Sala;
+import Libreria.Usuario;
 
 /**
  *
@@ -19,32 +20,46 @@ public class SalaServidor implements Serializable{
     
     private final ClienteServidor propietario;
     private final List<ClienteServidor> jugadores;
-    private final Sala pacLobby;
+    public Sala pacLobby;
     
-    public SalaServidor(long idSala, String nombreSala, ClienteServidor propietario)
+    public SalaServidor(long idSala, Sala sala, ClienteServidor propietario)
     {
-        this.pacLobby = new Sala();
-        this.pacLobby.idSala = idSala;
-        this.pacLobby.nombreSala = nombreSala;
+        sala.idSala = idSala;
+        sala.jugadores = new ArrayList<Usuario>();
+        sala.agregarJugador(propietario.getUsuarioLog());
         
+        this.pacLobby = sala;
         this.propietario = propietario;
-        this.jugadores = new ArrayList<>(3);
+        this.jugadores = new ArrayList<>(sala.maxjugadores);
     }
     
     public boolean AgregaJugador(ClienteServidor jugador)
     {
-        if(jugadores.contains(jugador))
-            return true;
+        //if(jugadores.contains(jugador))
+            //return true;
         
-        if(jugadores.size() >= 3)
+        if(jugadores.size() >= pacLobby.maxjugadores)
             return false;
         
-        jugadores.add(jugador);
+        this.jugadores.add(jugador);
+        this.pacLobby.agregarJugador(jugador.getUsuarioLog());
+        return true;
+    }   
+    
+    public boolean QuitarJugador(ClienteServidor jugador)
+    {
+        //if(jugadores.contains(jugador))
+            //return true;
+        
+
+        this.jugadores.remove(jugador);
+        this.pacLobby.quitarJugador(jugador.getUsuarioLog());
         return true;
     }
-    
+    /*
     public Sala getSala()
     {
         return this.pacLobby;
     }
+    */
 }

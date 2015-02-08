@@ -28,6 +28,7 @@ public class ClienteServidor implements Runnable{
     private ObjectInputStream in;
     private ObjectOutputStream out;
     private Thread lobbyStream;
+    private Thread salaStream;
     
     private Usuario usuarioLog;
     private boolean success;
@@ -103,20 +104,15 @@ public class ClienteServidor implements Runnable{
         if(action == Actions.NEWLOBBY)
         {
             System.out.println("Solicitud NEWLOBBY.");
+            Sala sala = (Sala) in.readObject();
             
-            if(getUsuarioLog() == null)
-                return;
+            long creado = 0;
             
-            Servidor.listaSalas.CrearSala("nombre", this);
-        }   
-        
-        if(action == Actions.GETLOBBYS)
-        {
-            System.out.println("Solicitud GETLOBBYS.");
-            ArrayList<Sala> salas = Servidor.listaSalas.getSalas();
+            if(getUsuarioLog() != null)
+                creado = Servidor.listaSalas.CrearSala(sala, this);
             
-            out.writeObject(salas);
-        }       
+            out.writeObject(creado);
+        }      
         
         if(action == Actions.GETLOBBYSstream)
         {
@@ -125,8 +121,15 @@ public class ClienteServidor implements Runnable{
             lobbyStream = new Thread(() ->{
                 while(true)
                 {
-                    try {                               
-                        out.writeObject(Servidor.listaSalas.getSalas());       
+                    try {
+                        ArrayList<Sala> salas = Servidor.listaSalas.getSalas();
+                        out.reset();
+                        out.writeObject(salas);
+                        
+                        for(Sala sala : salas)
+                        {
+                            System.out.println("ClienteServidor::GETLOBBYSstream -> Sala enviada " + sala.nombreSala + " con " + sala.jugadoresEnSala + " de " + sala.maxjugadores);   
+                        }
                         
                         try
                         {
@@ -146,13 +149,84 @@ public class ClienteServidor implements Runnable{
             });
             
             lobbyStream.start();
+        }   
+        
+        if(action == Actions.GETSALAstream)
+        {
+            System.out.println("Solicitud GETSALAstream.");
+            long id = (long)in.readObject();
+            
+            salaStream = new Thread(() ->{
+                while(true)
+                {
+                    try {
+                        Sala sala = Servidor.listaSalas.getSala(id);
+                        out.reset();
+                        out.writeObject(sala);
+                        
+                        try
+                        {
+                            Thread.sleep(1000);
+                        }
+                        catch ( InterruptedException e)
+                        {
+                            Thread.currentThread().interrupt(); // restore interrupted status
+                            break;
+                        }
+                        
+                    } catch (IOException ex) {
+                        Logger.getLogger(ClienteServidor.class.getName()).log(Level.SEVERE, null, ex);
+                        SalaServidor salaServ = Servidor.listaSalas.getSalaServidor(id);
+                        salaServ.QuitarJugador(this);
+                        break;
+                    }
+                }
+            });
+            
+            salaStream.start();
         }        
+        
+        if(action == Actions.GETSALAstreamStop)
+        {
+            System.out.println("Solicitud GETSALAstreamStop.");
+            this.salaStream.interrupt();
+            this.salaStream = null;
+        }      
         
         if(action == Actions.GETLOBBYSstreamStop)
         {
             System.out.println("Solicitud GETLOBBYSstreamStop.");
             this.lobbyStream.interrupt();
             this.lobbyStream = null;
+        } 
+        
+        if(action == Actions.JoinSALA)
+        {
+            System.out.println("Solicitud JoinSALA.");
+            long id = (long)in.readObject();
+            SalaServidor salaServ = Servidor.listaSalas.getSalaServidor(id);
+            Sala sala = salaServ.pacLobby;
+            
+            if(sala.jugadoresEnSala < sala.maxjugadores)
+            {
+                salaServ.AgregaJugador(this);
+                out.writeObject(true);
+                System.out.println("jugador agrergado.");
+            }
+            else
+            {
+                out.writeObject(false);
+                System.out.println("jugador no agrergado.");
+            }
+        }  
+        
+        if(action == Actions.LeaveSALA)
+        {
+            System.out.println("Solicitud LeaveSALA.");
+            long id = (long)in.readObject();
+            SalaServidor salaServ = Servidor.listaSalas.getSalaServidor(id);
+            
+            salaServ.QuitarJugador(this);
         }
     }
 

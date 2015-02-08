@@ -122,7 +122,7 @@ public class GUI extends javax.swing.JFrame {
                     while(true)
                     {
                         jLabel1.setText(Integer.toString(Servidor.clientes.size()));
-                        jLabel4.setText(Integer.toString(Servidor.listaSalas.getSalas().size()));
+                        jLabel4.setText(Integer.toString(Servidor.listaSalas.getCantSalas()));
                         try {
                             Thread.sleep(500);
                         } catch (InterruptedException ex) {
