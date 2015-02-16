@@ -85,14 +85,33 @@ public class ClienteServidor implements Runnable{
                 //Enviar usuario de prueba
                 Usuario usu = new Usuario();
                 usu.ID = 1;
-                usu.Usuario = "diegoaossas";
+                usu.Cuenta = "diegoaossas";
+                usu.Nombre = "Azzshi";
                 usu.pGanadas = 2323;
                 usu.pJugadas = 6923;
                 usu.pPerdidas = 0;
 
                 usuarioLog = usu;
                 out.writeObject(getUsuarioLog());
-                System.out.println("Login completo, usuario enviado -> " + usu.Usuario);
+                System.out.println("Login completo, usuario enviado -> " + usu.Cuenta);
+            }            
+            else if(cred.usuario.equals("b") && cred.clave.equals("b"))
+            {
+                success = true;
+                out.writeObject(Respuesta.LOGGED);
+
+                //Enviar usuario de prueba
+                Usuario usu = new Usuario();
+                usu.ID = 2;
+                usu.Cuenta = "arcaaa";
+                usu.Nombre = "Jinx";
+                usu.pGanadas = 233;
+                usu.pJugadas = 63;
+                usu.pPerdidas = 0;
+
+                usuarioLog = usu;
+                out.writeObject(getUsuarioLog());
+                System.out.println("Login completo, usuario enviado -> " + usu.Cuenta);
             }
             else
             {
