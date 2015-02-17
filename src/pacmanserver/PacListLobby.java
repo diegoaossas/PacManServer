@@ -1,20 +1,14 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package pacmanserver;
 
 import Libreria.Sala;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-/**
- *
- * @author Diego
- */
-public class PacListLobby  implements Serializable{
-    private final ArrayList<SalaServidor> salas;
+public class PacListLobby  implements Serializable
+{
+	private static final long serialVersionUID = 1L;
+	
+	private final ArrayList<SalaServidor> salas;
     private long contador;
     
     public PacListLobby()

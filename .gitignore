@@ -30,3 +30,4 @@ _ReSharper*/
 dist/
 build/
 nbproject/private/*
+Usuarios.xml

@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package pacmanserver;
 
 import java.io.Serializable;
@@ -11,14 +6,10 @@ import java.util.List;
 import Libreria.Sala;
 import Libreria.Usuario;
 
-/**
- *
- * @author Diego
- */
-public class SalaServidor implements Serializable{    
+public class SalaServidor implements Serializable
+{    
     private static final long serialVersionUID = 1L;
     
-    private final ClienteServidor propietario;
     private final List<ClienteServidor> jugadores;
     public Sala pacLobby;
     
@@ -29,7 +20,6 @@ public class SalaServidor implements Serializable{
         sala.agregarJugador(propietario.getUsuarioLog());
         
         this.pacLobby = sala;
-        this.propietario = propietario;
         this.jugadores = new ArrayList<>(sala.maxjugadores);
     }
     
