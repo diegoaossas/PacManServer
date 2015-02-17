@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package pacmanserver;
 
 import Libreria.Actions;
@@ -19,10 +14,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-/**
- *
- * @author Diego
- */
 public class ClienteServidor implements Runnable{
     private final Socket socket;
     private ObjectInputStream in;
@@ -31,11 +22,10 @@ public class ClienteServidor implements Runnable{
     private Thread salaStream;
     
     private Usuario usuarioLog;
-    private boolean success;
-
+    private boolean fin = false;
+    
     public ClienteServidor(Socket sock)
     {
-        this.success = false;
         this.socket = sock;
         this.in = null;
         this.out = null;
@@ -53,6 +43,9 @@ public class ClienteServidor implements Runnable{
             while (true)
             {
                 procesaData();
+                
+                if(fin)
+                	break;
             }
         }
         catch (IOException | ClassNotFoundException e)
@@ -71,53 +64,74 @@ public class ClienteServidor implements Runnable{
         
         if(action == Actions.LOGIN)
         {
-            success = false;
             System.out.println("Solicitud de login recibida.");
             
             Credenciales cred = (Credenciales)in.readObject();
             System.out.println("Credenciales recibidas.");
             
-            if(cred.usuario.equals("a") && cred.clave.equals("a"))
+            for(Usuario usu : Servidor.usuariosRegistrados)
             {
-                success = true;
-                out.writeObject(Respuesta.LOGGED);
-
-                //Enviar usuario de prueba
-                Usuario usu = new Usuario();
-                usu.ID = 1;
-                usu.Cuenta = "diegoaossas";
-                usu.Nombre = "Azzshi";
-                usu.pGanadas = 2323;
-                usu.pJugadas = 6923;
-                usu.pPerdidas = 0;
-
-                usuarioLog = usu;
-                out.writeObject(getUsuarioLog());
-                System.out.println("Login completo, usuario enviado -> " + usu.Cuenta);
-            }            
-            else if(cred.usuario.equals("b") && cred.clave.equals("b"))
-            {
-                success = true;
-                out.writeObject(Respuesta.LOGGED);
-
-                //Enviar usuario de prueba
-                Usuario usu = new Usuario();
-                usu.ID = 2;
-                usu.Cuenta = "arcaaa";
-                usu.Nombre = "Jinx";
-                usu.pGanadas = 233;
-                usu.pJugadas = 63;
-                usu.pPerdidas = 0;
-
-                usuarioLog = usu;
-                out.writeObject(getUsuarioLog());
-                System.out.println("Login completo, usuario enviado -> " + usu.Cuenta);
+            	if(usu.Cuenta.toLowerCase().equals(cred.usuario.toLowerCase()))
+            	{
+            		if(usu.Clave.equals(cred.clave))
+            		{
+                        out.writeObject(Respuesta.LOGGED);
+                        usuarioLog = usu;
+                        out.writeObject(getUsuarioLog());
+                        System.out.println("Login completo, usuario enviado -> " + usu.Cuenta);
+            		}
+            		else
+            		{
+                        break;
+            		}
+            	}
             }
-            else
+            
+            if(usuarioLog == null)
             {
                 out.writeObject(Respuesta.NOLOGGED);
                 socket.close();
             }
+        }
+        
+        if(action == Actions.REGISTRO)
+        {
+            System.out.println("Solicitud de registro recibida.");
+            
+            Credenciales cred = (Credenciales)in.readObject();
+            System.out.println("Credenciales recibidas.");
+            boolean existente = false;
+            
+            for(Usuario usu : Servidor.usuariosRegistrados)
+            {
+            	if(usu.Cuenta.toLowerCase().equals(cred.usuario.toLowerCase()))
+            	{
+                    existente = true;
+                    break;
+            	}
+            }
+            
+            if(!existente)
+            {
+            	Usuario usu = new Usuario();
+            	usu.ID = Servidor.usuariosRegistrados.size() + 1;
+                usu.Cuenta = cred.usuario;
+                usu.Clave = cred.clave;
+                usu.Nombre = cred.usuario;
+                usuarioLog = usu;
+                Servidor.usuariosRegistrados.add(usu);
+                
+                out.writeObject(Respuesta.REGISTRADO);
+                out.writeObject(getUsuarioLog());
+                System.out.println("Registro completo, usuario enviado -> " + usu.Cuenta);
+            }
+            else
+            {
+                System.out.println("Registro fallido, usuario existente");
+                out.writeObject(Respuesta.NOREGISTRADO);
+                socket.close();
+            }
+
         }
         
         if(action == Actions.NEWLOBBY)
@@ -238,7 +252,7 @@ public class ClienteServidor implements Runnable{
                 System.out.println("jugador no agrergado.");
             }
         }  
-        
+
         if(action == Actions.LeaveSALA)
         {
             System.out.println("Solicitud LeaveSALA.");
@@ -246,6 +260,12 @@ public class ClienteServidor implements Runnable{
             SalaServidor salaServ = Servidor.listaSalas.getSalaServidor(id);
             
             salaServ.QuitarJugador(this);
+        }
+        
+        if(action == Actions.DESCONECTAR)
+        {
+            System.out.println("Solicitud DESCONECTAR.");
+            fin	= true;
         }
     }
 

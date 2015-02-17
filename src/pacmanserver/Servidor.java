@@ -11,6 +11,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
+import Libreria.Usuario;
+
 /**
  *
  * @author Diego
@@ -18,6 +20,7 @@ import java.util.ArrayList;
 public class Servidor extends Thread {
     public static PacListLobby listaSalas;
     public static ArrayList<ClienteServidor> clientes;
+    public static ArrayList<Usuario> usuariosRegistrados;
     
     private final ServerSocket listener;
     private final int MAX_COLA = 200;
@@ -25,7 +28,8 @@ public class Servidor extends Thread {
     public Servidor(int puerto) throws IOException
     {
         listener = new ServerSocket(puerto, MAX_COLA, InetAddress.getLocalHost());
-        clientes = new ArrayList<>();
+        clientes = new ArrayList<ClienteServidor>();
+        usuariosRegistrados = new ArrayList<Usuario>();
         listaSalas = new PacListLobby();
     }
 
