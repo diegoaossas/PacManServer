@@ -17,24 +17,20 @@ import Libreria.Usuario;
 
 public class Servidor extends Thread
 {
-    public static PacListLobby listaSalas;
-    public static ArrayList<ClienteServidor> clientes;
-    public static ArrayList<Usuario> usuariosRegistrados;
-    
-    private ServerSocket listener;
-    private final int MAX_COLA = 200;
-    private int puerto;
-    
-    public Servidor(int puerto)
-    {
-        this.puerto = puerto;
-        clientes = new ArrayList<ClienteServidor>();
-        usuariosRegistrados = new ArrayList<Usuario>();
-        listaSalas = new PacListLobby();
-
-    	cargarUsuarios();
+    public static void cargarUsuarios()
+    {    	
+    	List<Element> list = XML.cargaElementos("Usuarios.xml", "Usuario");
+	
+		if(list != null)
+		{
+			for (int i = 0; i < list.size(); i++)
+			{
+				Element node = list.get(i);
+				Usuario usuario = XML.elementToUsuario(node);
+				usuariosRegistrados.add(usuario);
+			}
+		}
     }
-    
     public static void guardaUsuarios()
     {
 		try
@@ -61,20 +57,24 @@ public class Servidor extends Thread
 		}
     	
     }
+    public static PacListLobby listaSalas;
+    
+    public static ArrayList<ClienteServidor> clientes;
+    public static ArrayList<Usuario> usuariosRegistrados;
+    private ServerSocket listener;
+    
+    private final int MAX_COLA = 200;
+    
+    private int puerto;
 
-    public static void cargarUsuarios()
-    {    	
-    	List<Element> list = XML.cargaElementos("Usuarios.xml", "Usuario");
-	
-		if(list != null)
-		{
-			for (int i = 0; i < list.size(); i++)
-			{
-				Element node = (Element) list.get(i);
-				Usuario usuario = XML.elementToUsuario(node);
-				usuariosRegistrados.add(usuario);
-			}
-		}
+    public Servidor(int puerto)
+    {
+        this.puerto = puerto;
+        clientes = new ArrayList<ClienteServidor>();
+        usuariosRegistrados = new ArrayList<Usuario>();
+        listaSalas = new PacListLobby();
+
+    	cargarUsuarios();
     }
     
     @Override

@@ -1,8 +1,9 @@
 package pacmanserver;
 
-import Libreria.Sala;
 import java.io.Serializable;
 import java.util.ArrayList;
+
+import Libreria.Sala;
 
 public class PacListLobby  implements Serializable
 {
@@ -30,20 +31,6 @@ public class PacListLobby  implements Serializable
         return contador;
     }
     
-    public ArrayList<Sala> getSalas()
-    {
-        ArrayList<Sala> listaSalas = new ArrayList<>();
-        
-        for(SalaServidor salaServ : salas)
-        {
-            Sala sala = salaServ.pacLobby;
-            listaSalas.add(sala);
-            System.out.println("PacListLobby::getSalas() -> Sala " + sala.nombreSala + " con " + sala.jugadoresEnSala + " de " + sala.maxjugadores);
-        }
-        
-        return listaSalas;
-    }
-    
     public int getCantSalas()
     {
         return salas.size();
@@ -62,6 +49,20 @@ public class PacListLobby  implements Serializable
             }
         }
         return null;
+    }
+    
+    public ArrayList<Sala> getSalas()
+    {
+        ArrayList<Sala> listaSalas = new ArrayList<>();
+        
+        for(SalaServidor salaServ : salas)
+        {
+            Sala sala = salaServ.pacLobby;
+            listaSalas.add(sala);
+            System.out.println("PacListLobby::getSalas() -> Sala " + sala.nombreSala + " con " + sala.jugadoresEnSala + " de " + sala.maxjugadores);
+        }
+        
+        return listaSalas;
     }
     
     public SalaServidor getSalaServidor(long id)

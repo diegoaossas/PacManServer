@@ -1,10 +1,5 @@
 package pacmanserver;
 
-import Libreria.Actions;
-import Libreria.Credenciales;
-import Libreria.Respuesta;
-import Libreria.Sala;
-import Libreria.Usuario;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -12,6 +7,12 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import Libreria.Actions;
+import Libreria.Credenciales;
+import Libreria.Respuesta;
+import Libreria.Sala;
+import Libreria.Usuario;
 
 
 public class ClienteServidor implements Runnable{
@@ -32,30 +33,12 @@ public class ClienteServidor implements Runnable{
         this.usuarioLog = null;
     }
 
-    @Override
-    public void run() {
-        try
-        {
-            this.out = new ObjectOutputStream(socket.getOutputStream());
-            this.in = new ObjectInputStream(socket.getInputStream());
-            Servidor.clientes.add(this);
-            
-            while (true)
-            {
-                procesaData();
-                
-                if(fin)
-                	break;
-            }
-        }
-        catch (IOException | ClassNotFoundException e)
-        {
-            System.out.println("Error: " + e.getMessage());
-        }
-        finally
-        {
-            Servidor.clientes.remove(this);
-        }
+    /**
+     * @return the usuarioLog
+     */
+    public Usuario getUsuarioLog()
+    {
+        return usuarioLog;
     }
     
     public void procesaData() throws IOException, ClassNotFoundException
@@ -269,11 +252,29 @@ public class ClienteServidor implements Runnable{
         }
     }
 
-    /**
-     * @return the usuarioLog
-     */
-    public Usuario getUsuarioLog()
-    {
-        return usuarioLog;
+    @Override
+    public void run() {
+        try
+        {
+            this.out = new ObjectOutputStream(socket.getOutputStream());
+            this.in = new ObjectInputStream(socket.getInputStream());
+            Servidor.clientes.add(this);
+            
+            while (true)
+            {
+                procesaData();
+                
+                if(fin)
+                	break;
+            }
+        }
+        catch (IOException | ClassNotFoundException e)
+        {
+            System.out.println("Error: " + e.getMessage());
+        }
+        finally
+        {
+            Servidor.clientes.remove(this);
+        }
     }
 }

@@ -14,6 +14,32 @@ import Libreria.Usuario;
 public class XML
 {
 	
+	public static List<Element> cargaElementos(String archivo, String children)
+	{
+		SAXBuilder builder = new SAXBuilder();
+		File xmlFile = new File(archivo);
+		
+		try
+		{
+		
+			Document document = builder.build(xmlFile);
+			Element rootNode = document.getRootElement();
+			List<Element> list = rootNode.getChildren(children);
+			
+			return list;
+		}
+		catch (IOException io)
+		{
+			System.out.println(io.getMessage());
+		}
+		catch (JDOMException jdomex)
+		{
+			System.out.println(jdomex.getMessage());
+		}
+		
+		return null;
+	}
+	
 	public static Usuario elementToUsuario(Element elemento)
 	{
 		Usuario usuario = new Usuario();
@@ -42,31 +68,5 @@ public class XML
 		elemento.addContent(new Element("pPerdidas").setText(String.valueOf(usuario.pPerdidas)));
 		
 		return elemento;
-	}
-	
-	public static List<Element> cargaElementos(String archivo, String children)
-	{
-		SAXBuilder builder = new SAXBuilder();
-		File xmlFile = new File(archivo);
-		
-		try
-		{
-		
-			Document document = (Document) builder.build(xmlFile);
-			Element rootNode = document.getRootElement();
-			List<Element> list = rootNode.getChildren(children);
-			
-			return list;
-		}
-		catch (IOException io)
-		{
-			System.out.println(io.getMessage());
-		}
-		catch (JDOMException jdomex)
-		{
-			System.out.println(jdomex.getMessage());
-		}
-		
-		return null;
 	}
 }
