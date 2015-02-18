@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import Libreria.Sala;
-import Libreria.Usuario;
 
 public class SalaServidor implements Serializable
 {    
@@ -14,20 +13,19 @@ public class SalaServidor implements Serializable
     private final List<ClienteServidor> jugadores;
     public Sala pacLobby;
     
-    public SalaServidor(long idSala, Sala sala, ClienteServidor propietario)
-    {
-        sala.idSala = idSala;
-        sala.jugadores = new ArrayList<Usuario>();
-        sala.agregarJugador(propietario.getUsuarioLog());
-        
+    public SalaServidor(Sala sala)
+    {        
         this.pacLobby = sala;
-        this.jugadores = new ArrayList<>(sala.maxjugadores);
+        this.jugadores = new ArrayList<>();
     }
     
     public boolean AgregaJugador(ClienteServidor jugador)
     {
-        //if(jugadores.contains(jugador))
-            //return true;
+    	for(ClienteServidor cliente : jugadores)
+    	{
+    		if(cliente.getUsuarioLog().Cuenta.equals(jugador.getUsuarioLog().Cuenta))
+    			return false;
+    	}
         
         if(jugadores.size() >= pacLobby.maxjugadores)
             return false;
@@ -35,22 +33,20 @@ public class SalaServidor implements Serializable
         this.jugadores.add(jugador);
         this.pacLobby.agregarJugador(jugador.getUsuarioLog());
         return true;
-    }   
+    }
     
     public boolean QuitarJugador(ClienteServidor jugador)
     {
-        //if(jugadores.contains(jugador))
-            //return true;
-        
+    	for(ClienteServidor cliente : jugadores)
+    	{
+    		if(cliente.getUsuarioLog().Cuenta.equals(jugador.getUsuarioLog().Cuenta))
+    		{
+    	        this.jugadores.remove(cliente);
+    	        this.pacLobby.quitarJugador(cliente.getUsuarioLog());
+    			return true;
+    		}
+    	}
 
-        this.jugadores.remove(jugador);
-        this.pacLobby.quitarJugador(jugador.getUsuarioLog());
-        return true;
+        return false;
     }
-    /*
-    public Sala getSala()
-    {
-        return this.pacLobby;
-    }
-    */
 }

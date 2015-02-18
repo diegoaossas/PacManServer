@@ -120,12 +120,12 @@ public class ClienteServidor implements Runnable{
         if(action == Actions.NEWLOBBY)
         {
             System.out.println("Solicitud NEWLOBBY.");
-            Sala sala = (Sala) in.readObject();
+            String nombreSala = (String) in.readObject();
             
             long creado = 0;
             
             if(getUsuarioLog() != null)
-                creado = Servidor.listaSalas.CrearSala(sala, this);
+                creado = Servidor.listaSalas.CrearSala(nombreSala, this);
             
             out.writeObject(creado);
         }      
@@ -144,7 +144,7 @@ public class ClienteServidor implements Runnable{
                         
                         for(Sala sala : salas)
                         {
-                            System.out.println("ClienteServidor::GETLOBBYSstream -> Sala enviada " + sala.nombreSala + " con " + sala.jugadoresEnSala + " de " + sala.maxjugadores);   
+                            System.out.println("ClienteServidor::GETLOBBYSstream -> Sala enviada " + sala.nombreSala + " con " + sala.jugadores.size() + " de " + sala.maxjugadores);   
                         }
                         
                         try
@@ -176,8 +176,8 @@ public class ClienteServidor implements Runnable{
                 while(true)
                 {
                     try {
-                        Sala sala = Servidor.listaSalas.getSala(id);
                         out.reset();
+                        Sala sala = Servidor.listaSalas.getSala(id);
                         out.writeObject(sala);
                         
                         try
@@ -207,7 +207,7 @@ public class ClienteServidor implements Runnable{
             System.out.println("Solicitud GETSALAstreamStop.");
             this.salaStream.interrupt();
             this.salaStream = null;
-        }      
+        }
         
         if(action == Actions.GETLOBBYSstreamStop)
         {
@@ -223,7 +223,7 @@ public class ClienteServidor implements Runnable{
             SalaServidor salaServ = Servidor.listaSalas.getSalaServidor(id);
             Sala sala = salaServ.pacLobby;
             
-            if(sala.jugadoresEnSala < sala.maxjugadores)
+            if(sala.jugadores.size() < sala.maxjugadores)
             {
                 salaServ.AgregaJugador(this);
                 out.writeObject(true);
@@ -234,14 +234,14 @@ public class ClienteServidor implements Runnable{
                 out.writeObject(false);
                 System.out.println("jugador no agrergado.");
             }
-        }  
+        }
 
         if(action == Actions.LeaveSALA)
         {
             System.out.println("Solicitud LeaveSALA.");
             long id = (long)in.readObject();
             SalaServidor salaServ = Servidor.listaSalas.getSalaServidor(id);
-            
+            System.out.println("Remover jugador '" + this.usuarioLog.Cuenta + "' de sala: " + salaServ.pacLobby.nombreSala);
             salaServ.QuitarJugador(this);
         }
         
