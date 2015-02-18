@@ -5,8 +5,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import Libreria.Actions;
 import Libreria.Credenciales;
@@ -41,7 +39,7 @@ public class ClienteServidor implements Runnable{
         return usuarioLog;
     }
     
-    public void procesaData() throws IOException, ClassNotFoundException
+    public void procesaData() throws ClassNotFoundException, IOException
     {
         Actions action = (Actions)in.readObject();
         
@@ -157,8 +155,8 @@ public class ClienteServidor implements Runnable{
                             break;
                         }
                         
-                    } catch (IOException ex) {
-                        Logger.getLogger(ClienteServidor.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (IOException ex)
+                    {
                         break;
                     }
                 }
@@ -186,12 +184,13 @@ public class ClienteServidor implements Runnable{
                         }
                         catch ( InterruptedException e)
                         {
-                            Thread.currentThread().interrupt(); // restore interrupted status
+                            Thread.currentThread().interrupt();
                             break;
                         }
                         
-                    } catch (IOException ex) {
-                        Logger.getLogger(ClienteServidor.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    catch (IOException ex)
+                    {
                         SalaServidor salaServ = Servidor.listaSalas.getSalaServidor(id);
                         salaServ.QuitarJugador(this);
                         break;
