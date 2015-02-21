@@ -1,13 +1,18 @@
 package pacmanserver;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 import Libreria.Actions;
+import Libreria.Cell;
 import Libreria.Credenciales;
+import Libreria.Mapa;
 import Libreria.Respuesta;
 import Libreria.Sala;
 import Libreria.Usuario;
@@ -249,6 +254,15 @@ public class ClienteServidor implements Runnable{
             System.out.println("Solicitud DESCONECTAR.");
             fin	= true;
         }
+        
+        if(action == Actions.GETMAPA)
+        {
+        	//createCellArray("/src/libreria/mapa.txt);
+        	Mapa mapa = new Mapa();
+        	mapa.lineList = cargaMapa();
+        	
+        	out.writeObject(mapa);
+        }
     }
 
     @Override
@@ -276,4 +290,52 @@ public class ClienteServidor implements Runnable{
             Servidor.clientes.remove(this);
         }
     }
+    
+    /**
+     * Reads from the map file and create the two dimensional array
+     */
+    private ArrayList<String> cargaMapa()
+    {
+
+    	String map = "src/pacman/mapa/mapa.txt";
+    	
+        // Scanner object to read from map file
+        Scanner           fileReader;
+        ArrayList<String> lineList = new ArrayList<String>();
+
+        // Attempt to load the maze map file
+        try
+        {
+            fileReader = new Scanner(new File(map));
+
+            while (true)
+            {
+                String line = null;
+
+                try
+                {
+                    line = fileReader.nextLine();
+                }
+                catch (Exception eof)
+                {
+
+                    // throw new A5FatalException("Could not read resource");
+                }
+
+                if (line == null)
+                    break;
+
+                lineList.add(line);
+            }
+            
+        }
+        catch(FileNotFoundException e)
+        {
+        }
+        finally
+        {
+        	return lineList;
+        }
+    }
+   
 }
