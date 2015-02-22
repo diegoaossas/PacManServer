@@ -3,6 +3,7 @@ package pacmanserver;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -82,7 +83,9 @@ public class Servidor extends Thread
     {
         try
         {
-			listener = new ServerSocket(puerto, MAX_COLA, InetAddress.getLocalHost());   
+			//listener = new ServerSocket(puerto, MAX_COLA, InetAddress.getLocalHost());
+        	InetAddress add = new InetSocketAddress("192.168.1.100" , 3000).getAddress();
+        	listener = new ServerSocket(puerto, MAX_COLA, add);
 			
 	        while (true)
 	        {

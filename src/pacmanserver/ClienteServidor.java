@@ -297,7 +297,7 @@ public class ClienteServidor implements Runnable{
     private ArrayList<String> cargaMapa()
     {
 
-    	String map = "src/pacman/mapa/mapa.txt";
+    	String map = "src/pacmanserver/mapa.txt";
     	
         // Scanner object to read from map file
         Scanner           fileReader;
@@ -331,6 +331,7 @@ public class ClienteServidor implements Runnable{
         }
         catch(FileNotFoundException e)
         {
+        	System.out.println("Archivo no encontrado");
         }
         finally
         {
