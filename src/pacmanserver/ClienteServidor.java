@@ -13,6 +13,7 @@ import Libreria.Actions;
 import Libreria.Cell;
 import Libreria.Credenciales;
 import Libreria.Mapa;
+import Libreria.Pacman;
 import Libreria.Respuesta;
 import Libreria.Sala;
 import Libreria.Usuario;
@@ -24,8 +25,10 @@ public class ClienteServidor implements Runnable{
     private ObjectOutputStream out;
     private Thread lobbyStream;
     private Thread salaStream;
+    private Thread pacmanStream;
     
     private Usuario usuarioLog;
+	public Pacman paquito;
     private boolean fin = false;
     
     public ClienteServidor(Socket sock)
@@ -152,7 +155,7 @@ public class ClienteServidor implements Runnable{
                         
                         try
                         {
-                            Thread.sleep(1000);
+                            Thread.sleep(500);
                         }
                         catch ( InterruptedException e)
                         {
@@ -185,7 +188,7 @@ public class ClienteServidor implements Runnable{
                         
                         try
                         {
-                            Thread.sleep(1000);
+                            Thread.sleep(500);
                         }
                         catch ( InterruptedException e)
                         {
@@ -196,6 +199,9 @@ public class ClienteServidor implements Runnable{
                     }
                     catch (IOException ex)
                     {
+						System.err.println("Error: " + ex.getMessage());
+						ex.printStackTrace();
+						
                         SalaServidor salaServ = Servidor.listaSalas.getSalaServidor(id);
                         salaServ.QuitarJugador(this);
                         break;
@@ -204,11 +210,124 @@ public class ClienteServidor implements Runnable{
             });
             
             salaStream.start();
+        }       
+		
+		
+        if(action == Actions.GETJUEGOstream)
+        {
+            System.out.println("Solicitud GETJUEGOstream.");
+            long id = (long)in.readObject();
+            
+            salaStream = new Thread(() ->{
+                while(true)
+                {
+                    try {
+                        out.reset();
+						SalaServidor salaServ = Servidor.listaSalas.getSalaServidor(id);
+                        Sala sala = salaServ.pacLobby;
+                        out.writeObject(sala);
+						
+						Pacman elMio = paquito;
+						out.writeObject(elMio);
+						
+						for(int i = 0; i<4; i++)
+						{
+							Pacman pacman = null;
+							try
+							{
+								pacman = salaServ.jugadores.get(i).paquito;
+								if(pacman.equals(elMio))
+									continue;
+							}
+							catch(Exception e)
+							{
+							}
+
+							out.writeObject(pacman);
+						}
+                        
+                        try
+                        {
+                            Thread.sleep(60);
+                        }
+                        catch ( InterruptedException e)
+                        {
+                            Thread.currentThread().interrupt();
+                            break;
+                        }
+                        
+                    }
+                    catch (IOException ex)
+                    {
+						System.err.println("Error: " + ex.getMessage());
+						ex.printStackTrace();
+						
+                        SalaServidor salaServ = Servidor.listaSalas.getSalaServidor(id);
+                        salaServ.QuitarJugador(this);
+                        break;
+                    }
+                }
+            });
+            
+            salaStream.start();
+        }      
+		
+        if(action == Actions.PacManSTREAM)
+        {
+            System.out.println("Solicitud GETSALAstream.");
+            long id = (long)in.readObject();
+            
+            pacmanStream = new Thread(() ->{
+                while(true)
+                {
+                    try {
+                        out.reset();
+						SalaServidor salaServ = Servidor.listaSalas.getSalaServidor(id);
+						Pacman elMio = paquito;
+						out.writeObject(elMio);
+						
+						for(int i = 0; i<4; i++)
+						{
+							Pacman pacman = null;
+							try
+							{
+								pacman = salaServ.jugadores.get(i).paquito;
+								if(pacman.equals(elMio))
+									continue;
+							}
+							catch(Exception e)
+							{
+							}
+
+							out.writeObject(pacman);
+						}
+						
+                        try
+                        {
+                            Thread.sleep(10);
+                        }
+                        catch ( InterruptedException e)
+                        {
+                            Thread.currentThread().interrupt();
+                            break;
+                        }
+                        
+                    }
+                    catch (IOException ex)
+                    {
+						this.paquito = null;
+                        break;
+                    }
+                }
+            });
+            
+            pacmanStream.start();
         }        
         
         if(action == Actions.GETSALAstreamStop)
         {
             System.out.println("Solicitud GETSALAstreamStop.");
+			out.writeObject(Respuesta.OK);
             this.salaStream.interrupt();
             this.salaStream = null;
         }
@@ -216,6 +335,7 @@ public class ClienteServidor implements Runnable{
         if(action == Actions.GETLOBBYSstreamStop)
         {
             System.out.println("Solicitud GETLOBBYSstreamStop.");
+			out.writeObject(Respuesta.OK);
             this.lobbyStream.interrupt();
             this.lobbyStream = null;
         } 
@@ -247,6 +367,7 @@ public class ClienteServidor implements Runnable{
             SalaServidor salaServ = Servidor.listaSalas.getSalaServidor(id);
             System.out.println("Remover jugador '" + this.usuarioLog.Cuenta + "' de sala: " + salaServ.pacLobby.nombreSala);
             salaServ.QuitarJugador(this);
+			out.writeObject(Respuesta.OK);
         }
         
         if(action == Actions.DESCONECTAR)
@@ -259,9 +380,29 @@ public class ClienteServidor implements Runnable{
         {
         	//createCellArray("/src/libreria/mapa.txt);
         	Mapa mapa = new Mapa();
-        	mapa.lineList = cargaMapa();
+        	//mapa.lineList = cargaMapa();
         	
         	out.writeObject(mapa);
+        }        
+		
+        if(action == Actions.ActPACMAN)
+        {
+            long id = (long)in.readObject();
+            SalaServidor salaServ = Servidor.listaSalas.getSalaServidor(id);
+			Pacman paco = (Pacman) in.readObject();
+
+			paquito = paco;
+			
+			if(paquito != null)
+			{
+				char type = salaServ.pacLobby.cellsMapa[paquito.pacmanRow][paquito.pacmanCol].getType();
+
+				if(type == 'm')
+				{
+					salaServ.pacLobby.cellsMapa[paquito.pacmanRow][paquito.pacmanCol].type = 'v';
+				}
+			}
+					
         }
     }
 
@@ -289,54 +430,7 @@ public class ClienteServidor implements Runnable{
         {
             Servidor.clientes.remove(this);
         }
-    }
     
-    /**
-     * Reads from the map file and create the two dimensional array
-     */
-    private ArrayList<String> cargaMapa()
-    {
-
-    	String map = "src/pacmanserver/mapa.txt";
-    	
-        // Scanner object to read from map file
-        Scanner           fileReader;
-        ArrayList<String> lineList = new ArrayList<String>();
-
-        // Attempt to load the maze map file
-        try
-        {
-            fileReader = new Scanner(new File(map));
-
-            while (true)
-            {
-                String line = null;
-
-                try
-                {
-                    line = fileReader.nextLine();
-                }
-                catch (Exception eof)
-                {
-
-                    // throw new A5FatalException("Could not read resource");
-                }
-
-                if (line == null)
-                    break;
-
-                lineList.add(line);
-            }
-            
-        }
-        catch(FileNotFoundException e)
-        {
-        	System.out.println("Archivo no encontrado");
-        }
-        finally
-        {
-        	return lineList;
-        }
     }
    
 }
