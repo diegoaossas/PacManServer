@@ -249,7 +249,7 @@ public class ClienteServidor implements Runnable
                             break;
                         }
                         
-                        Thread.sleep(200);
+                        Thread.sleep(5);
 
                     } catch (IOException ex)
                     {
@@ -402,12 +402,12 @@ public class ClienteServidor implements Runnable
                 if (type == 'm')
                 {
                     salaServ.pacLobby.cellsMapa[getUsuarioLog().paco.pacmanRow][getUsuarioLog().paco.pacmanCol].type = 'v';
-                    getUsuarioLog().paco.puntos += 1;
+                    getUsuarioLog().paco.puntos += 10;
                 }
                 else if (type == 'n')
                 {
                     salaServ.pacLobby.cellsMapa[getUsuarioLog().paco.pacmanRow][getUsuarioLog().paco.pacmanCol].type = 'v';
-                    getUsuarioLog().paco.puntos += 5;
+                    getUsuarioLog().paco.puntos += 50;
                 }
             }
 
