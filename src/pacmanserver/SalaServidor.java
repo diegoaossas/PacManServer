@@ -63,7 +63,9 @@ public class SalaServidor implements Serializable
         int posN = 0;
         for(ClienteServidor cliente : jugadores)
         {
-            cliente.getUsuarioLog().paco.pos = posN++;
+            cliente.getUsuarioLog().paco.pos = posN;
+            cliente.getUsuarioLog().paco.color = posN;
+            posN++;
         }
         pacLobby.empezado = true;
     }

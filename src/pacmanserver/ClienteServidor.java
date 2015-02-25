@@ -12,24 +12,20 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class ClienteServidor implements Runnable
 {
 
     private final Socket socket;
-    private ObjectInputStream in;
-    private ObjectOutputStream out;
+    public ObjectInputStream in;
+    public ObjectOutputStream out;
     
-    private Thread lobbyStream;
-    private boolean intLobby = false;
-    private Thread salaStream;
-    private boolean intSala = false;
-    private Thread pacmanStream;
-    private boolean intPacman = false;
-    private Thread juegoStream;
-    private boolean intJuego = false;
+    public Thread lobbyStream;
+    public boolean intLobby = false;
+    public Thread salaStream;
+    public boolean intSala = false;
+    public Thread juegoStream;
+    public boolean intJuego = false;
 
     private Usuario usuarioLog;
     private boolean fin = false;
@@ -249,7 +245,7 @@ public class ClienteServidor implements Runnable
                             break;
                         }
                         
-                        Thread.sleep(5);
+                        Thread.sleep(24);
 
                     } catch (IOException ex)
                     {
@@ -263,62 +259,6 @@ public class ClienteServidor implements Runnable
             });
 
             juegoStream.start();
-        }
-
-        if (action == Actions.PacManSTREAM)
-        {
-            long id = (long) in.readObject();
-
-            pacmanStream = new Thread(() ->
-            {
-                while (true)
-                {
-                    try
-                    {
-                        SalaServidor salaServ = Servidor.listaSalas.getSalaServidor(id);
-                        Pacman elMio = getUsuarioLog().paco;
-                        out.writeObject(elMio);
-                        out.reset();
-
-                        for (int i = 0; i < 4; i++)
-                        {
-                            Pacman pacman = null;
-                            try
-                            {
-                                pacman = salaServ.pacLobby.jugadores.get(i).paco;
-                                if (pacman.equals(elMio))
-                                {
-                                    continue;
-                                }
-                            } catch (Exception e)
-                            {
-                                e.printStackTrace();
-                            }
-
-                            out.writeObject(pacman);
-                        }
-
-                        
-                        if(intPacman)
-                        {
-                            System.out.println("SOLIC DETENER");
-                            Thread.currentThread().interrupt();
-                            break;
-                        }
-                        
-                        Thread.sleep(20);
-
-                    } catch (IOException ex)
-                    {
-                        ex.printStackTrace();
-                        getUsuarioLog().paco = null;
-                        break;
-                    }
-                    catch(InterruptedException e) { }
-                }
-            });
-
-            pacmanStream.start();
         }
 
         if (action == Actions.GETSALAstreamStop)
