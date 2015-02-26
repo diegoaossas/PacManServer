@@ -2,6 +2,7 @@ package pacmanserver;
 
 import Libreria.Pacman;
 import Libreria.Sala;
+import java.awt.Color;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +37,6 @@ public class SalaServidor implements Serializable
         }
 
         jugador.getUsuarioLog().paco = new Pacman(3);
-        jugador.getUsuarioLog().paco.pos = 0;
         jugadores.add(jugador);
         pacLobby.agregarJugador(jugador.getUsuarioLog());
         return true;
@@ -50,7 +50,7 @@ public class SalaServidor implements Serializable
             {
                 pacLobby.quitarJugador(cliente.getUsuarioLog());
                 jugadores.remove(cliente);
-                jugador.getUsuarioLog().paco = null;
+                jugador.getUsuarioLog().paco = new Pacman(3);
                 return true;
             }
         }
@@ -64,7 +64,21 @@ public class SalaServidor implements Serializable
         for(ClienteServidor cliente : jugadores)
         {
             cliente.getUsuarioLog().paco.pos = posN;
-            cliente.getUsuarioLog().paco.color = posN;
+            switch(posN)
+            {
+                case 0:
+                    cliente.getUsuarioLog().paco.color = Color.YELLOW;
+                    break;
+                case 1:
+                    cliente.getUsuarioLog().paco.color = Color.CYAN;
+                    break;
+                case 2:
+                    cliente.getUsuarioLog().paco.color = Color.GREEN;
+                    break;
+                case 3:
+                    cliente.getUsuarioLog().paco.color = Color.ORANGE;
+                    break;
+            }
             posN++;
         }
         pacLobby.empezado = true;
