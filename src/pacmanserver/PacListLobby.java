@@ -1,15 +1,12 @@
 package pacmanserver;
 
-import Libreria.Pacman;
+import Libreria.Jugadores;
+import Libreria.Sala;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import Libreria.Sala;
-import Libreria.Usuario;
-
 public class PacListLobby implements Serializable
 {
-
     private static final long serialVersionUID = 1L;
 
     private int maxSalas = 4;
@@ -31,7 +28,7 @@ public class PacListLobby implements Serializable
         Sala sala = new Sala();
         sala.idSala = idSala++;
         sala.nombreSala = nombreSala;
-        sala.jugadores = new ArrayList<Usuario>();
+        sala.jugadores = new Jugadores();
         sala.capitan = propietario.getUsuarioLog().Cuenta;
 
         SalaServidor salaServidor = new SalaServidor(sala);
@@ -63,9 +60,10 @@ public class PacListLobby implements Serializable
 
     public ArrayList<Sala> getSalas()
     {
+        ArrayList<SalaServidor> salasS = (ArrayList<SalaServidor>) salas.clone();
         ArrayList<Sala> listaSalas = new ArrayList<>();
 
-        for (SalaServidor salaServ : salas)
+        for (SalaServidor salaServ : salasS)
         {
             Sala sala = salaServ.pacLobby;
             listaSalas.add(sala);
@@ -87,10 +85,12 @@ public class PacListLobby implements Serializable
         }
         return null;
     }
-    
+
     public void verificarValidez(SalaServidor salaServ)
     {
-        if(salaServ.jugadores.size() < 1)
+        if (salaServ.jugadores.size() < 1)
+        {
             salas.remove(salaServ);
+        }
     }
 }

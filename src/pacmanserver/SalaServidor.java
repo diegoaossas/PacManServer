@@ -16,15 +16,15 @@ public class SalaServidor implements Serializable
 
     public SalaServidor(Sala sala)
     {
-        this.pacLobby = sala;
-        this.jugadores = new ArrayList<>();
+        pacLobby = sala;
+        jugadores = new ArrayList<>();
     }
 
     public boolean AgregaJugador(ClienteServidor jugador)
     {
         for (ClienteServidor cliente : jugadores)
         {
-            if (cliente.getUsuarioLog().Cuenta.equals(jugador.getUsuarioLog().Cuenta))
+            if(cliente.equals(jugador))
             {
                 return false;
             }
@@ -37,8 +37,8 @@ public class SalaServidor implements Serializable
 
         jugador.getUsuarioLog().paco = new Pacman(3);
         jugador.getUsuarioLog().paco.pos = 0;
-        this.jugadores.add(jugador);
-        this.pacLobby.agregarJugador(jugador.getUsuarioLog());
+        jugadores.add(jugador);
+        pacLobby.agregarJugador(jugador.getUsuarioLog());
         return true;
     }
 
@@ -46,10 +46,10 @@ public class SalaServidor implements Serializable
     {
         for (ClienteServidor cliente : jugadores)
         {
-            if (cliente.getUsuarioLog().Cuenta.equals(jugador.getUsuarioLog().Cuenta))
+            if (cliente.equals(jugador))
             {
-                this.jugadores.remove(cliente);
-                this.pacLobby.quitarJugador(cliente.getUsuarioLog());
+                pacLobby.quitarJugador(cliente.getUsuarioLog());
+                jugadores.remove(cliente);
                 jugador.getUsuarioLog().paco = null;
                 return true;
             }
