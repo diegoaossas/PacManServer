@@ -63,7 +63,9 @@ public class SalaServidor implements Serializable
         int posN = 0;
         for(ClienteServidor cliente : jugadores)
         {
+            cliente.getUsuarioLog().puntosPaco = 0;
             cliente.getUsuarioLog().paco.pos = posN;
+            
             switch(posN)
             {
                 case 0:

@@ -62,7 +62,7 @@ public class ClienteServidor implements Runnable
             return false;
         }
         final ClienteServidor other = (ClienteServidor) obj;
-        if (!Objects.equals(this.usuarioLog, other.usuarioLog))
+        if (!Objects.equals(this.getUsuarioLog(), other.getUsuarioLog()))
         {
             return false;
         }
@@ -277,7 +277,6 @@ public class ClienteServidor implements Runnable
                 Sala salaAnterior = null;
                 Jugadores jugadoresAnterior = null;
 
-
                 while (true)
                 {
                     try
@@ -293,27 +292,25 @@ public class ClienteServidor implements Runnable
 
                         SalaServidor salaServ = Servidor.listaSalas.getSalaServidor(id);
                         Sala sala = salaServ.pacLobby;
-/*
-                        System.err.println("MIPACO -> " + getUsuarioLog().paco);
-                        for (Usuario usu : sala.jugadores)
-                        {
-                            System.err.println(usu.paco);
-                        }
-                        */
+                        /*
+                         System.err.println("MIPACO -> " + getUsuarioLog().paco);
+                         for (Usuario usu : sala.jugadores)
+                         {
+                         System.err.println(usu.paco);
+                         }
+                         */
                         if (salaAnterior == null || jugadoresAnterior == null)
                         {
                             salaAnterior = sala.clone();
                             jugadoresAnterior = sala.jugadores.clone();
-                        }
-                        else
+                        } else
                         {
                             boolean salas = salaAnterior.equals(sala);
                             boolean jugadores = jugadoresAnterior.equals(sala.jugadores);
                             if (salas && jugadores)
                             {
                                 continue;
-                            }
-                            else
+                            } else
                             {
                                 salaAnterior = sala.clone();
                                 jugadoresAnterior = sala.jugadores.clone();
@@ -432,22 +429,8 @@ public class ClienteServidor implements Runnable
             long id = (long) in.readObject();
             SalaServidor salaServ = Servidor.listaSalas.getSalaServidor(id);
             Pacman paco = (Pacman) in.readObject();
-           
-            if (paco != null)
-            {
-                char type = salaServ.pacLobby.cellsMapa[paco.pacmanRow][paco.pacmanCol].getType();
+            char type = salaServ.pacLobby.cellsMapa[paco.pacmanRow][paco.pacmanCol].getType();
 
-                if (type == 'm')
-                {
-                    salaServ.pacLobby.cellsMapa[paco.pacmanRow][paco.pacmanCol].type = 'v';
-                    paco.puntos += 10;
-                } else if (type == 'n')
-                {
-                    salaServ.pacLobby.cellsMapa[paco.pacmanRow][paco.pacmanCol].type = 'v';
-                    paco.puntos += 50;
-                }
-            }
-            
             //for(Usuario usu : salaServ.pacLobby.jugadores)
             for (int i = 0; i < salaServ.pacLobby.jugadores.size(); i++)
             {
@@ -455,10 +438,53 @@ public class ClienteServidor implements Runnable
                 {
                     getUsuarioLog().paco = paco;
                     salaServ.pacLobby.jugadores.get(i).paco = paco;
-                    //salaServ.pacLobby.cellsMapa[paco.pacmanRow][paco.pacmanCol].type = 'v';
                     break;
                 }
             }
+
+            if (paco.powerUP)
+            {
+                Jugadores jugadores = salaServ.pacLobby.jugadores;
+                
+                for (int i = 0; i < jugadores.size(); i++)
+                {
+
+                    if (!jugadores.get(i).equals(getUsuarioLog()))
+                    {
+                        if (jugadores.get(i).paco.chocan(paco))
+                        {
+                            jugadores.get(i).paco.livesLeft--;
+                            jugadores.get(i).paco.ubicados = false;
+                            paco.powerUP = false;
+                                            
+                            for (int j = 0; j < salaServ.pacLobby.jugadores.size(); j++)
+                            {
+                                salaServ.jugadores.get(j).out.writeObject(Respuesta.PLAYSONIDO);
+                                salaServ.jugadores.get(j).out.writeObject("EATPAC");
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (type == 'm')
+            {
+                salaServ.pacLobby.cellsMapa[paco.pacmanRow][paco.pacmanCol].type = 'v';
+                getUsuarioLog().puntosPaco += 10;
+            } else if (type == 'n')
+            {
+                salaServ.pacLobby.cellsMapa[paco.pacmanRow][paco.pacmanCol].type = 'v';
+                getUsuarioLog().puntosPaco += 50;
+                paco.powerUP = true;                
+                
+                for (int i = 0; i < salaServ.pacLobby.jugadores.size(); i++)
+                {
+                    salaServ.jugadores.get(i).out.writeObject(Respuesta.PLAYSONIDO);
+                    salaServ.jugadores.get(i).out.writeObject("POWER");
+                }
+            }
+
+            paco.puntos = getUsuarioLog().puntosPaco;
         }
 
         if (action == Actions.PLAYALL)
@@ -480,8 +506,7 @@ public class ClienteServidor implements Runnable
                     }
                     cliente.out.writeObject(Respuesta.PLAY);
                     cliente.out.writeObject(Respuesta.OK);
-                }
-                else
+                } else
                 {
                     if (salaStream != null)
                     {
