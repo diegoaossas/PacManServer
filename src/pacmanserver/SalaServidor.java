@@ -9,7 +9,6 @@ import java.util.List;
 
 public class SalaServidor implements Serializable
 {
-
     private static final long serialVersionUID = 1L;
 
     public List<ClienteServidor> jugadores;
@@ -26,15 +25,11 @@ public class SalaServidor implements Serializable
         for (ClienteServidor cliente : jugadores)
         {
             if(cliente.equals(jugador))
-            {
                 return false;
-            }
         }
 
         if (jugadores.size() >= pacLobby.maxjugadores)
-        {
             return false;
-        }
 
         jugador.getUsuarioLog().paco = new Pacman(3);
         jugadores.add(jugador);

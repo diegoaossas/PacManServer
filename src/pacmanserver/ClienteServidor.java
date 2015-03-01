@@ -54,18 +54,16 @@ public class ClienteServidor implements Runnable
     public boolean equals(Object obj)
     {
         if (obj == null)
-        {
             return false;
-        }
+        
         if (getClass() != obj.getClass())
-        {
             return false;
-        }
+        
         final ClienteServidor other = (ClienteServidor) obj;
+        
         if (!Objects.equals(this.getUsuarioLog(), other.getUsuarioLog()))
-        {
             return false;
-        }
+        
         return true;
     }
 
@@ -94,7 +92,8 @@ public class ClienteServidor implements Runnable
                         out.writeObject(Respuesta.LOGGED);
                         usuarioLog = usu;
                         out.writeObject(getUsuarioLog());
-                    } else
+                    }
+                    else
                     {
                         break;
                     }
@@ -134,7 +133,8 @@ public class ClienteServidor implements Runnable
 
                 out.writeObject(Respuesta.REGISTRADO);
                 out.writeObject(getUsuarioLog());
-            } else
+            }
+            else
             {
                 out.writeObject(Respuesta.NOREGISTRADO);
                 socket.close();
@@ -149,9 +149,7 @@ public class ClienteServidor implements Runnable
             long creado = 0;
 
             if (getUsuarioLog() != null)
-            {
                 creado = Servidor.listaSalas.CrearSala(nombreSala, this);
-            }
 
             out.writeObject(creado);
         }
@@ -179,29 +177,27 @@ public class ClienteServidor implements Runnable
                         if (salasAnteriores == null)
                         {
                             salasAnteriores = (ArrayList<Sala>) salas.clone();
-                        } else
+                        }
+                        else
                         {
                             if (salas.equals(salasAnteriores))
-                            {
                                 continue;
-                            } else
-                            {
+                            else
                                 salasAnteriores = (ArrayList<Sala>) salas.clone();
-                            }
                         }
 
                         System.out.println("Lobby cambio, enviada act.");
                         out.writeObject(salas);
                         System.out.println("Envie sala");
                         out.reset();
-                    } catch (IOException ex)
+                    }
+                    catch (IOException ex)
                     {
                         System.out.println("ERROR Y SED ETUVO");
                         ex.printStackTrace();
                         break;
-                    } catch (InterruptedException ex)
-                    {
                     }
+                    catch (InterruptedException ex){ }
                 }
             });
 
@@ -221,6 +217,7 @@ public class ClienteServidor implements Runnable
                     try
                     {
                         Thread.sleep(5);
+                        
                         if (intSala)
                         {
                             System.out.println("SOLIC DETENER");
@@ -233,22 +230,21 @@ public class ClienteServidor implements Runnable
                         if (salaAnterior == null)
                         {
                             salaAnterior = (Sala) sala.clone();
-                        } else
+                        }
+                        else
                         {
                             if (sala.equals(salaAnterior))
-                            {
                                 continue;
-                            } else
-                            {
+                            else
                                 salaAnterior = sala.clone();
-                            }
                         }
 
                         out.writeObject(sala);
                         System.out.println("Sala cambio, enviada act.");
                         out.reset();
 
-                    } catch (IOException ex)
+                    }
+                    catch (IOException ex)
                     {
                         ex.printStackTrace();
 
@@ -256,12 +252,8 @@ public class ClienteServidor implements Runnable
                         salaServ.QuitarJugador(this);
                         Servidor.listaSalas.verificarValidez(salaServ);
                         break;
-                    } catch (InterruptedException ex)
-                    {
-                    } catch (CloneNotSupportedException ex)
-                    {
-                        Logger.getLogger(ClienteServidor.class.getName()).log(Level.SEVERE, null, ex);
                     }
+                    catch (InterruptedException | CloneNotSupportedException ex){}
                 }
             });
 
@@ -292,25 +284,20 @@ public class ClienteServidor implements Runnable
 
                         SalaServidor salaServ = Servidor.listaSalas.getSalaServidor(id);
                         Sala sala = salaServ.pacLobby;
-                        /*
-                         System.err.println("MIPACO -> " + getUsuarioLog().paco);
-                         for (Usuario usu : sala.jugadores)
-                         {
-                         System.err.println(usu.paco);
-                         }
-                         */
+
                         if (salaAnterior == null || jugadoresAnterior == null)
                         {
                             salaAnterior = sala.clone();
                             jugadoresAnterior = sala.jugadores.clone();
-                        } else
+                        }
+                        else
                         {
                             boolean salas = salaAnterior.equals(sala);
                             boolean jugadores = jugadoresAnterior.equals(sala.jugadores);
+                            
                             if (salas && jugadores)
-                            {
                                 continue;
-                            } else
+                            else
                             {
                                 salaAnterior = sala.clone();
                                 jugadoresAnterior = sala.jugadores.clone();
@@ -328,29 +315,24 @@ public class ClienteServidor implements Runnable
                             try
                             {
                                 pacman = sala.jugadores.get(i).paco;
+                                
                                 if (pacman.equals(miPacman))
-                                {
                                     continue;
-                                }
-                            } catch (IndexOutOfBoundsException e)
-                            {
                             }
+                            catch (IndexOutOfBoundsException e){ }
 
                             out.writeObject(pacman);
                         }
 
-                    } catch (IOException ex)
+                    }
+                    catch (IOException ex)
                     {
                         SalaServidor salaServ = Servidor.listaSalas.getSalaServidor(id);
                         salaServ.QuitarJugador(this);
                         Servidor.listaSalas.verificarValidez(salaServ);
                         break;
-                    } catch (InterruptedException e)
-                    {
-                    } catch (CloneNotSupportedException ex)
-                    {
-                        Logger.getLogger(ClienteServidor.class.getName()).log(Level.SEVERE, null, ex);
                     }
+                    catch (InterruptedException | CloneNotSupportedException e){}
                 }
             });
 
@@ -393,9 +375,7 @@ public class ClienteServidor implements Runnable
             if (sala.jugadores.size() < sala.maxjugadores)
             {
                 if (salaServ.AgregaJugador(this))
-                {
                     out.writeObject(true);
-                }
             }
 
             out.writeObject(false);
@@ -415,15 +395,6 @@ public class ClienteServidor implements Runnable
             fin = true;
         }
 
-        if (action == Actions.GETMAPA)
-        {
-            //createCellArray("/src/libreria/mapa.txt);
-            Mapa mapa = new Mapa();
-            //mapa.lineList = cargaMapa();
-
-            out.writeObject(mapa);
-        }
-
         if (action == Actions.ActPACMAN)
         {
             long id = (long) in.readObject();
@@ -431,7 +402,6 @@ public class ClienteServidor implements Runnable
             Pacman paco = (Pacman) in.readObject();
             char type = salaServ.pacLobby.cellsMapa[paco.pacmanRow][paco.pacmanCol].getType();
 
-            //for(Usuario usu : salaServ.pacLobby.jugadores)
             for (int i = 0; i < salaServ.pacLobby.jugadores.size(); i++)
             {
                 if (salaServ.pacLobby.jugadores.get(i).equals(getUsuarioLog()))
@@ -441,7 +411,25 @@ public class ClienteServidor implements Runnable
                     break;
                 }
             }
-
+            
+            if(paco.chocan(salaServ.pacLobby.fanti))
+            {
+                if (!paco.powerUP)
+                {
+                    paco.livesLeft--;
+                    paco.ubicados = false;
+                    out.writeObject(Respuesta.PLAYSONIDO);
+                    out.writeObject("ATE");
+                }
+                else
+                {
+                    salaServ.pacLobby.fanti.ubicados = false;
+                    out.writeObject(Respuesta.PLAYSONIDO);
+                    out.writeObject("EATPAC");
+                    paco.powerUP = false;
+                }
+            }
+            
             if (paco.powerUP)
             {
                 Jugadores jugadores = salaServ.pacLobby.jugadores;
@@ -457,11 +445,8 @@ public class ClienteServidor implements Runnable
                             jugadores.get(i).paco.ubicados = false;
                             paco.powerUP = false;
                                             
-                            for (int j = 0; j < salaServ.pacLobby.jugadores.size(); j++)
-                            {
-                                salaServ.jugadores.get(j).out.writeObject(Respuesta.PLAYSONIDO);
-                                salaServ.jugadores.get(j).out.writeObject("EATPAC");
-                            }
+                            salaServ.jugadores.get(i).out.writeObject(Respuesta.PLAYSONIDO);
+                            salaServ.jugadores.get(i).out.writeObject("ATE");
                         }
                     }
                 }
@@ -471,7 +456,8 @@ public class ClienteServidor implements Runnable
             {
                 salaServ.pacLobby.cellsMapa[paco.pacmanRow][paco.pacmanCol].type = 'v';
                 getUsuarioLog().puntosPaco += 10;
-            } else if (type == 'n')
+            }
+            else if (type == 'n')
             {
                 salaServ.pacLobby.cellsMapa[paco.pacmanRow][paco.pacmanCol].type = 'v';
                 getUsuarioLog().puntosPaco += 50;
@@ -506,7 +492,8 @@ public class ClienteServidor implements Runnable
                     }
                     cliente.out.writeObject(Respuesta.PLAY);
                     cliente.out.writeObject(Respuesta.OK);
-                } else
+                }
+                else
                 {
                     if (salaStream != null)
                     {
@@ -540,12 +527,9 @@ public class ClienteServidor implements Runnable
                     break;
                 }
             }
-        } catch (IOException e)
-        {
-        } catch (ClassNotFoundException e)
-        {
-            e.printStackTrace();
-        } finally
+        }
+        catch (IOException | ClassNotFoundException e){}
+        finally
         {
             Servidor.clientes.remove(this);
         }

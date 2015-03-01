@@ -1,5 +1,6 @@
 package pacmanserver;
 
+import Libreria.Fantasma;
 import Libreria.Jugadores;
 import Libreria.Sala;
 import java.io.Serializable;
@@ -21,14 +22,13 @@ public class PacListLobby implements Serializable
     public long CrearSala(String nombreSala, ClienteServidor propietario)
     {
         if (salas.size() >= maxSalas)
-        {
             return 0;
-        }
 
         Sala sala = new Sala();
         sala.idSala = idSala++;
         sala.nombreSala = nombreSala;
         sala.jugadores = new Jugadores();
+        sala.fanti = new Fantasma();
         sala.capitan = propietario.getUsuarioLog().Cuenta;
 
         SalaServidor salaServidor = new SalaServidor(sala);
@@ -51,10 +51,9 @@ public class PacListLobby implements Serializable
             Sala sala = salaServ.pacLobby;
 
             if (sala.idSala == id)
-            {
                 return sala;
-            }
         }
+        
         return null;
     }
 
@@ -79,18 +78,15 @@ public class PacListLobby implements Serializable
             Sala sala = salaServ.pacLobby;
 
             if (sala.idSala == id)
-            {
                 return salaServ;
-            }
         }
+        
         return null;
     }
 
     public void verificarValidez(SalaServidor salaServ)
     {
         if (salaServ.jugadores.size() < 1)
-        {
             salas.remove(salaServ);
-        }
     }
 }
