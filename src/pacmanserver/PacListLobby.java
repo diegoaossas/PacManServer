@@ -1,7 +1,5 @@
 package pacmanserver;
 
-import Libreria.Fantasma;
-import Libreria.Jugadores;
 import Libreria.Sala;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -10,7 +8,7 @@ public class PacListLobby implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    private int maxSalas = 4;
+    private final int maxSalas = 4;
     private long idSala = 1;
     private final ArrayList<SalaServidor> salas;
 
@@ -25,16 +23,15 @@ public class PacListLobby implements Serializable
             return 0;
 
         Sala sala = new Sala();
-        sala.idSala = idSala++;
+        sala.idSala = idSala;
         sala.nombreSala = nombreSala;
-        sala.jugadores = new Jugadores();
-        sala.fanti = new Fantasma();
         sala.capitan = propietario.getUsuarioLog().Cuenta;
 
         SalaServidor salaServidor = new SalaServidor(sala);
         salaServidor.AgregaJugador(propietario);
-
         salas.add(salaServidor);
+        
+        idSala++;
 
         return salaServidor.pacLobby.idSala;
     }
@@ -59,6 +56,7 @@ public class PacListLobby implements Serializable
 
     public ArrayList<Sala> getSalas()
     {
+        @SuppressWarnings("unchecked")
         ArrayList<SalaServidor> salasS = (ArrayList<SalaServidor>) salas.clone();
         ArrayList<Sala> listaSalas = new ArrayList<>();
 

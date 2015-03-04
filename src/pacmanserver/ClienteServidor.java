@@ -3,7 +3,6 @@ package pacmanserver;
 import Libreria.Actions;
 import Libreria.Credenciales;
 import Libreria.Jugadores;
-import Libreria.Mapa;
 import Libreria.Pacman;
 import Libreria.Respuesta;
 import Libreria.Sala;
@@ -14,21 +13,18 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class ClienteServidor implements Runnable
 {
-
     private final Socket socket;
     public ObjectInputStream in;
     public ObjectOutputStream out;
 
-    public Thread lobbyStream;
+    public Thread lobbyStream = null;
     public boolean intLobby = false;
-    public Thread salaStream;
+    public Thread salaStream = null;
     public boolean intSala = false;
-    public Thread juegoStream;
+    public Thread juegoStream = null;
     public boolean intJuego = false;
 
     private Usuario usuarioLog;
@@ -47,6 +43,7 @@ public class ClienteServidor implements Runnable
     {
         int hash = 5;
         hash = 19 * hash + Objects.hashCode(this.usuarioLog);
+        
         return hash;
     }
 
@@ -61,20 +58,15 @@ public class ClienteServidor implements Runnable
         
         final ClienteServidor other = (ClienteServidor) obj;
         
-        if (!Objects.equals(this.getUsuarioLog(), other.getUsuarioLog()))
-            return false;
-        
-        return true;
+        return Objects.equals(this.getUsuarioLog(), other.getUsuarioLog());
     }
 
-    /**
-     * @return the usuarioLog
-     */
     public Usuario getUsuarioLog()
     {
         return usuarioLog;
     }
 
+    @SuppressWarnings("unchecked")
     public void procesaData() throws ClassNotFoundException, IOException
     {
         Actions action = (Actions) in.readObject();
@@ -229,7 +221,7 @@ public class ClienteServidor implements Runnable
 
                         if (salaAnterior == null)
                         {
-                            salaAnterior = (Sala) sala.clone();
+                            salaAnterior = sala.clone();
                         }
                         else
                         {
@@ -528,7 +520,10 @@ public class ClienteServidor implements Runnable
                 }
             }
         }
-        catch (IOException | ClassNotFoundException e){}
+        catch (IOException | ClassNotFoundException e)
+        {
+            System.err.println(e.getMessage());
+        }
         finally
         {
             Servidor.clientes.remove(this);

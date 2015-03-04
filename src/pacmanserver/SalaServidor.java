@@ -34,6 +34,7 @@ public class SalaServidor implements Serializable
         jugador.getUsuarioLog().paco = new Pacman(3);
         jugadores.add(jugador);
         pacLobby.agregarJugador(jugador.getUsuarioLog());
+        
         return true;
     }
 
@@ -46,6 +47,7 @@ public class SalaServidor implements Serializable
                 pacLobby.quitarJugador(cliente.getUsuarioLog());
                 jugadores.remove(cliente);
                 jugador.getUsuarioLog().paco = new Pacman(3);
+                
                 return true;
             }
         }
@@ -79,5 +81,20 @@ public class SalaServidor implements Serializable
             posN++;
         }
         pacLobby.empezado = true;
+    }
+    
+    @Override
+    protected SalaServidor clone() throws CloneNotSupportedException
+    {
+        SalaServidor salaS = (SalaServidor) super.clone();
+        salaS.pacLobby = pacLobby.clone();
+        salaS.jugadores = new ArrayList<>();
+        
+        for(ClienteServidor cliente : jugadores)
+        {
+            salaS.jugadores.add(cliente);
+        }
+        
+        return salaS;
     }
 }

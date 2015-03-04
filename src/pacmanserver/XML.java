@@ -11,7 +11,8 @@ import org.jdom2.input.SAXBuilder;
 
 public class XML
 {
-
+    private XML() {}
+    
     public static List<Element> cargaElementos(String archivo, String children)
     {
         SAXBuilder builder = new SAXBuilder();
@@ -28,7 +29,7 @@ public class XML
         }
         catch (IOException | JDOMException ex)
         {
-            System.out.println(ex.getMessage());
+            System.err.println(ex.getMessage());
         }
 
         return null;
@@ -63,4 +64,5 @@ public class XML
 
         return elemento;
     }
+
 }

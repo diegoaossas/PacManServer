@@ -16,13 +16,12 @@ import org.jdom2.output.XMLOutputter;
 public class Servidor extends Thread
 {
     public static PacListLobby listaSalas;
-
     public static ArrayList<ClienteServidor> clientes;
     public static ArrayList<Usuario> usuariosRegistrados;
     
-    private ServerSocket listener;
+    private ServerSocket listener = null;
     private final int MAX_COLA = 200;
-    private int puerto;
+    private final int puerto;
 
     public Servidor(int puerto)
     {
@@ -99,7 +98,7 @@ public class Servidor extends Thread
         }
         catch (IOException ex)
         {
-            System.out.println(ex.getMessage());
+            System.err.println(ex.getMessage());
         }
 
     }
