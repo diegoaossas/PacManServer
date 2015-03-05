@@ -388,7 +388,7 @@ public class ClienteServidor implements Runnable
         }
 
         if (action == Actions.ActPACMAN)
-        {
+        {            
             long id = (long) in.readObject();
             SalaServidor salaServ = Servidor.listaSalas.getSalaServidor(id);
             Pacman paco = (Pacman) in.readObject();
@@ -421,6 +421,24 @@ public class ClienteServidor implements Runnable
                     paco.powerUP = false;
                 }
             }
+
+            if (type == 'm')
+            {
+                salaServ.pacLobby.cellsMapa[paco.pacmanRow][paco.pacmanCol].type = 'v';
+                getUsuarioLog().puntosPaco += 10;
+            }
+            else if (type == 'n')
+            {
+                salaServ.pacLobby.cellsMapa[paco.pacmanRow][paco.pacmanCol].type = 'v';
+                getUsuarioLog().puntosPaco += 50;
+                paco.powerUP = true;                
+                
+                for (int i = 0; i < salaServ.pacLobby.jugadores.size(); i++)
+                {
+                    salaServ.jugadores.get(i).out.writeObject(Respuesta.PLAYSONIDO);
+                    salaServ.jugadores.get(i).out.writeObject("POWER");
+                }
+            }
             
             if (paco.powerUP)
             {
@@ -444,23 +462,6 @@ public class ClienteServidor implements Runnable
                 }
             }
 
-            if (type == 'm')
-            {
-                salaServ.pacLobby.cellsMapa[paco.pacmanRow][paco.pacmanCol].type = 'v';
-                getUsuarioLog().puntosPaco += 10;
-            }
-            else if (type == 'n')
-            {
-                salaServ.pacLobby.cellsMapa[paco.pacmanRow][paco.pacmanCol].type = 'v';
-                getUsuarioLog().puntosPaco += 50;
-                paco.powerUP = true;                
-                
-                for (int i = 0; i < salaServ.pacLobby.jugadores.size(); i++)
-                {
-                    salaServ.jugadores.get(i).out.writeObject(Respuesta.PLAYSONIDO);
-                    salaServ.jugadores.get(i).out.writeObject("POWER");
-                }
-            }
 
             paco.puntos = getUsuarioLog().puntosPaco;
         }
