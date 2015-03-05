@@ -388,7 +388,7 @@ public class ClienteServidor implements Runnable
         }
 
         if (action == Actions.ActPACMAN)
-        {            
+        {
             long id = (long) in.readObject();
             SalaServidor salaServ = Servidor.listaSalas.getSalaServidor(id);
             Pacman paco = (Pacman) in.readObject();
@@ -404,24 +404,6 @@ public class ClienteServidor implements Runnable
                 }
             }
             
-            if(paco.chocan(salaServ.pacLobby.fant1))
-            {
-                if (!paco.powerUP)
-                {
-                    paco.livesLeft--;
-                    paco.ubicados = false;
-                    out.writeObject(Respuesta.PLAYSONIDO);
-                    out.writeObject("ATE");
-                }
-                else
-                {
-                    salaServ.pacLobby.fant1.ubicados = false;
-                    out.writeObject(Respuesta.PLAYSONIDO);
-                    out.writeObject("EATPAC");
-                    paco.powerUP = false;
-                }
-            }
-
             if (type == 'm')
             {
                 salaServ.pacLobby.cellsMapa[paco.pacmanRow][paco.pacmanCol].type = 'v';
