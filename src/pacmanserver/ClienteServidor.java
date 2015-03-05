@@ -404,7 +404,7 @@ public class ClienteServidor implements Runnable
                 }
             }
             
-            if(paco.chocan(salaServ.pacLobby.fanti))
+            if(paco.chocan(salaServ.pacLobby.fant1))
             {
                 if (!paco.powerUP)
                 {
@@ -415,7 +415,7 @@ public class ClienteServidor implements Runnable
                 }
                 else
                 {
-                    salaServ.pacLobby.fanti.ubicados = false;
+                    salaServ.pacLobby.fant1.ubicados = false;
                     out.writeObject(Respuesta.PLAYSONIDO);
                     out.writeObject("EATPAC");
                     paco.powerUP = false;

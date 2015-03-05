@@ -81,6 +81,11 @@ public class SalaServidor implements Serializable
             posN++;
         }
         pacLobby.empezado = true;
+        
+        pacLobby.fant1.opciones(pacLobby.cellsMapa);
+        pacLobby.fant2.opciones(pacLobby.cellsMapa);
+        pacLobby.fant3.opciones(pacLobby.cellsMapa);
+        pacLobby.fant4.opciones(pacLobby.cellsMapa);     
     }
     
     @Override
