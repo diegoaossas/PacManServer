@@ -405,13 +405,19 @@ public class ClienteServidor implements Runnable
         {
             long id = (long) in.readObject();
             SalaServidor salaServ = Servidor.listaSalas.getSalaServidor(id);
+            if(salaServ == null)
+                out.writeObject(false);
+            
             Sala sala = salaServ.pacLobby;
             out.reset();
 
             if (sala.jugadores.size() < sala.maxjugadores)
             {
                 if (salaServ.AgregaJugador(this))
+                {
                     out.writeObject(true);
+                    return;
+                }
             }
 
             out.writeObject(false);
@@ -436,6 +442,8 @@ public class ClienteServidor implements Runnable
             long id = (long) in.readObject();
             SalaServidor salaServ;
             Sala sala;
+            Pacman paco;
+            int modifPuntos;
             
             try
             {
@@ -447,9 +455,12 @@ public class ClienteServidor implements Runnable
                 nsex.printStackTrace();
                 return;
             }
+            finally
+            {
+                paco = (Pacman) in.readObject();
+                modifPuntos = (int) in.readObject();
+            }
 
-            Pacman paco = (Pacman) in.readObject();
-            int restaPuntos = (int) in.readObject();
             char type = sala.cellsMapa[paco.pacmanRow][paco.pacmanCol].getType();
             
             for (int i = 0; i < sala.jugadores.size(); i++)
@@ -509,9 +520,22 @@ public class ClienteServidor implements Runnable
                         }
                     }
                 }
+                
+                if(sala.compruebaColision(paco))
+                {                            
+                    if (!paco.powerUP)
+                    {
+                        paco.moviendose = false;
+                        paco.ubicados = false;
+                    }
+                    else
+                    {
+                        paco.powerUP = false;
+                    }
+                }
             }
             
-            getUsuarioLog().puntosPaco -= restaPuntos;
+            getUsuarioLog().puntosPaco += modifPuntos;
             paco.puntos = getUsuarioLog().puntosPaco;
         }
 
