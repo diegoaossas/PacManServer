@@ -315,6 +315,33 @@ public class ClienteServidor implements Runnable
 
                             out.writeObject(pacman);
                         }
+                        
+                        if(sala.pelletsRestantes < 1)
+                        {
+                            out.writeObject(Respuesta.JUEGOTERMINADO);
+                            Usuario ganador = getUsuarioLog();
+                            
+                            for(Usuario usu : sala.jugadores)
+                            {
+                                usu.pJugadas++;
+                                usu.pPerdidas++;
+                                
+                                if(usu.recordPuntos < usu.puntosPaco)
+                                    usu.recordPuntos = usu.puntosPaco;
+                                
+                                if(usu.puntosPaco > ganador.puntosPaco)
+                                    ganador = usu;
+                            }
+                            ganador.pGanadas++;
+                            ganador.pPerdidas--;
+                            
+                            out.writeObject(ganador);
+                            
+                            Thread.currentThread().interrupt();
+                            salaServ.QuitarJugador(this);
+                            Servidor.listaSalas.verificarValidez(salaServ);
+                            break;
+                        }
 
                     }
                     catch (IOException ex)
@@ -392,8 +419,9 @@ public class ClienteServidor implements Runnable
             long id = (long) in.readObject();
             SalaServidor salaServ = Servidor.listaSalas.getSalaServidor(id);
             Pacman paco = (Pacman) in.readObject();
+            int restaPuntos = (int) in.readObject();
             char type = salaServ.pacLobby.cellsMapa[paco.pacmanRow][paco.pacmanCol].getType();
-
+            
             for (int i = 0; i < salaServ.pacLobby.jugadores.size(); i++)
             {
                 if (salaServ.pacLobby.jugadores.get(i).equals(getUsuarioLog()))
@@ -407,12 +435,15 @@ public class ClienteServidor implements Runnable
             if (type == 'm')
             {
                 salaServ.pacLobby.cellsMapa[paco.pacmanRow][paco.pacmanCol].type = 'v';
+                salaServ.pacLobby.pelletsRestantes--;
                 getUsuarioLog().puntosPaco += 10;
             }
             else if (type == 'n')
             {
                 salaServ.pacLobby.cellsMapa[paco.pacmanRow][paco.pacmanCol].type = 'v';
+                salaServ.pacLobby.pelletsRestantes--;
                 getUsuarioLog().puntosPaco += 50;
+                getUsuarioLog().paco.powerUP = true;
                 paco.powerUP = true;                
                 
                 for (int i = 0; i < salaServ.pacLobby.jugadores.size(); i++)
@@ -428,14 +459,25 @@ public class ClienteServidor implements Runnable
                 
                 for (int i = 0; i < jugadores.size(); i++)
                 {
-
                     if (!jugadores.get(i).equals(getUsuarioLog()))
                     {
                         if (jugadores.get(i).paco.chocan(paco))
                         {
-                            jugadores.get(i).paco.livesLeft--;
+                            if(jugadores.get(i).paco.livesLeft < 1)
+                            {
+                                if(jugadores.get(i).paco.puntos > 1000)
+                                    jugadores.get(i).paco.puntos -= 1000;
+                                else
+                                    jugadores.get(i).paco.puntos -= jugadores.get(i).paco.puntos;
+                            }
+                            else
+                            {
+                                jugadores.get(i).paco.livesLeft--;
+                            }
+                            
                             jugadores.get(i).paco.ubicados = false;
                             paco.powerUP = false;
+                            getUsuarioLog().paco.powerUP = false;
                                             
                             salaServ.jugadores.get(i).out.writeObject(Respuesta.PLAYSONIDO);
                             salaServ.jugadores.get(i).out.writeObject("ATE");
@@ -444,7 +486,7 @@ public class ClienteServidor implements Runnable
                 }
             }
 
-
+            getUsuarioLog().puntosPaco -= restaPuntos;
             paco.puntos = getUsuarioLog().puntosPaco;
         }
 
