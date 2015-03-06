@@ -266,11 +266,10 @@ public class ClienteServidor implements Runnable
                 {
                     try
                     {
-                        Thread.sleep(5);
+                        Thread.sleep(10);
 
                         if (intJuego)
                         {
-                            System.out.println("SOLIC DETENER");
                             Thread.currentThread().interrupt();
                             break;
                         }
@@ -455,11 +454,16 @@ public class ClienteServidor implements Runnable
                 getUsuarioLog().paco.powerUP = true;
                 paco.powerUP = true;                
                 
+                out.writeObject(Respuesta.PLAYSONIDO);
+                out.writeObject("POWER");
+                
+                /*
                 for (int i = 0; i < salaServ.pacLobby.jugadores.size(); i++)
                 {
                     salaServ.jugadores.get(i).out.writeObject(Respuesta.PLAYSONIDO);
                     salaServ.jugadores.get(i).out.writeObject("POWER");
                 }
+                */
             }
             
             if (paco.powerUP)
