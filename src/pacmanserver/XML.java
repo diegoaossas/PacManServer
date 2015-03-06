@@ -46,6 +46,7 @@ public class XML
         usuario.pJugadas = Integer.parseInt(elemento.getChildText("pJugadas"));
         usuario.pGanadas = Integer.parseInt(elemento.getChildText("pGanadas"));
         usuario.pPerdidas = Integer.parseInt(elemento.getChildText("pPerdidas"));
+        usuario.recordPuntos = Integer.parseInt(elemento.getChildText("recordPuntos"));
 
         return usuario;
     }
@@ -61,6 +62,7 @@ public class XML
         elemento.addContent(new Element("pJugadas").setText(String.valueOf(usuario.pJugadas)));
         elemento.addContent(new Element("pGanadas").setText(String.valueOf(usuario.pGanadas)));
         elemento.addContent(new Element("pPerdidas").setText(String.valueOf(usuario.pPerdidas)));
+        elemento.addContent(new Element("recordPuntos").setText(String.valueOf(usuario.recordPuntos)));
 
         return elemento;
     }

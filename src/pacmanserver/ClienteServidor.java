@@ -524,6 +524,38 @@ public class ClienteServidor implements Runnable
                 }
             }
         }
+        
+        if (action == Actions.TOP5)
+        {
+            ArrayList<Usuario> top5 = new ArrayList<Usuario>();
+            ArrayList<Usuario> registrados = (ArrayList<Usuario>) Servidor.usuariosRegistrados.clone();
+            int total = 5;
+            
+            if(registrados.size() < 5)
+                total = registrados.size();
+                
+            for(int i=0; i < total; i++)
+            {
+                Usuario posicion = new Usuario();
+                
+                
+                for(Usuario usu : registrados)
+                {
+                    if(usu.recordPuntos > posicion.recordPuntos)
+                    {
+                        posicion = usu;
+                    }
+                }
+                
+                if(posicion.recordPuntos < 1)
+                    continue;
+                
+                top5.add(posicion);
+                registrados.remove(posicion);
+            }
+            
+            out.writeObject(top5);
+        }
     }
 
     @Override
