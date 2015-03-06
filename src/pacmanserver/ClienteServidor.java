@@ -12,6 +12,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 
 public class ClienteServidor implements Runnable
@@ -239,14 +240,17 @@ public class ClienteServidor implements Runnable
                     }
                     catch (IOException ex)
                     {
-                        ex.printStackTrace();
+                        System.err.println(ex.getMessage());
 
                         SalaServidor salaServ = Servidor.listaSalas.getSalaServidor(id);
                         salaServ.QuitarJugador(this);
                         Servidor.listaSalas.verificarValidez(salaServ);
                         break;
                     }
-                    catch (InterruptedException | CloneNotSupportedException ex){}
+                    catch (InterruptedException | CloneNotSupportedException ex)
+                    {
+                        System.err.println(ex.getMessage());
+                    }
                 }
             });
 
@@ -266,6 +270,7 @@ public class ClienteServidor implements Runnable
                 {
                     try
                     {
+                        out.reset();
                         Thread.sleep(10);
 
                         if (intJuego)
@@ -292,14 +297,14 @@ public class ClienteServidor implements Runnable
                             else
                             {
                                 salaAnterior = sala.clone();
-                                jugadoresAnterior = sala.jugadores.clone();
+                                jugadoresAnterior = salaAnterior.jugadores;
                             }
                         }
 
-                        out.reset();
                         out.writeObject(sala);
                         Pacman miPacman = getUsuarioLog().paco;
                         out.writeObject(miPacman);
+                        
 
                         for (int i = 0; i < 4; i++)
                         {
@@ -345,21 +350,25 @@ public class ClienteServidor implements Runnable
                             out.writeObject(ganador);
                             
                             Thread.currentThread().interrupt();
+                            Servidor.guardaUsuarios();
                             salaServ.QuitarJugador(this);
                             Servidor.listaSalas.verificarValidez(salaServ);
-                            Servidor.guardaUsuarios();
                             break;
                         }
 
                     }
                     catch (IOException ex)
                     {
+                        System.err.println(ex.getMessage());
                         SalaServidor salaServ = Servidor.listaSalas.getSalaServidor(id);
                         salaServ.QuitarJugador(this);
                         Servidor.listaSalas.verificarValidez(salaServ);
                         break;
                     }
-                    catch (InterruptedException | CloneNotSupportedException e){}
+                    catch (InterruptedException | CloneNotSupportedException e)
+                    {
+                        System.err.println(e.getMessage());
+                    }
                 }
             });
 
@@ -425,45 +434,49 @@ public class ClienteServidor implements Runnable
         if (action == Actions.ActPACMAN)
         {
             long id = (long) in.readObject();
-            SalaServidor salaServ = Servidor.listaSalas.getSalaServidor(id);
+            SalaServidor salaServ;
+            Sala sala;
+            
+            try
+            {
+                salaServ = Servidor.listaSalas.getSalaServidor(id);
+                sala = salaServ.pacLobby;
+            }
+            catch(NoSuchElementException | NullPointerException nsex)
+            {
+                nsex.printStackTrace();
+                return;
+            }
+
             Pacman paco = (Pacman) in.readObject();
             int restaPuntos = (int) in.readObject();
-            char type = salaServ.pacLobby.cellsMapa[paco.pacmanRow][paco.pacmanCol].getType();
+            char type = sala.cellsMapa[paco.pacmanRow][paco.pacmanCol].getType();
             
-            for (int i = 0; i < salaServ.pacLobby.jugadores.size(); i++)
+            for (int i = 0; i < sala.jugadores.size(); i++)
             {
-                if (salaServ.pacLobby.jugadores.get(i).equals(getUsuarioLog()))
+                if (sala.jugadores.get(i).equals(getUsuarioLog()))
                 {
                     getUsuarioLog().paco = paco;
-                    salaServ.pacLobby.jugadores.get(i).paco = paco;
+                    sala.jugadores.get(i).paco = paco;
                     break;
                 }
             }
             
             if (type == 'm')
             {
-                salaServ.pacLobby.cellsMapa[paco.pacmanRow][paco.pacmanCol].type = 'v';
-                salaServ.pacLobby.pelletsRestantes--;
+                sala.cellsMapa[paco.pacmanRow][paco.pacmanCol].type = 'v';
+                sala.pelletsRestantes--;
                 getUsuarioLog().puntosPaco += 10;
             }
             else if (type == 'n')
             {
-                salaServ.pacLobby.cellsMapa[paco.pacmanRow][paco.pacmanCol].type = 'v';
-                salaServ.pacLobby.pelletsRestantes--;
+                sala.cellsMapa[paco.pacmanRow][paco.pacmanCol].type = 'v';
+                sala.pelletsRestantes--;
                 getUsuarioLog().puntosPaco += 50;
-                getUsuarioLog().paco.powerUP = true;
                 paco.powerUP = true;                
                 
                 out.writeObject(Respuesta.PLAYSONIDO);
                 out.writeObject("POWER");
-                
-                /*
-                for (int i = 0; i < salaServ.pacLobby.jugadores.size(); i++)
-                {
-                    salaServ.jugadores.get(i).out.writeObject(Respuesta.PLAYSONIDO);
-                    salaServ.jugadores.get(i).out.writeObject("POWER");
-                }
-                */
             }
             
             if (paco.powerUP)
@@ -490,7 +503,6 @@ public class ClienteServidor implements Runnable
                             
                             jugadores.get(i).paco.ubicados = false;
                             paco.powerUP = false;
-                            getUsuarioLog().paco.powerUP = false;
                                             
                             salaServ.jugadores.get(i).out.writeObject(Respuesta.PLAYSONIDO);
                             salaServ.jugadores.get(i).out.writeObject("ATE");
@@ -498,7 +510,7 @@ public class ClienteServidor implements Runnable
                     }
                 }
             }
-
+            
             getUsuarioLog().puntosPaco -= restaPuntos;
             paco.puntos = getUsuarioLog().puntosPaco;
         }

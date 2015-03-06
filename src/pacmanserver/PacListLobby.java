@@ -84,7 +84,14 @@ public class PacListLobby implements Serializable
 
     public void verificarValidez(SalaServidor salaServ)
     {
-        if (salaServ.jugadores.size() < 1)
-            salas.remove(salaServ);
+        try
+        {
+            if (salaServ.jugadores.size() < 1)
+                salas.remove(salaServ);
+        }
+        catch(ArrayIndexOutOfBoundsException aIn)
+        {
+            aIn.printStackTrace();
+        }
     }
 }

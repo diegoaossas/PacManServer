@@ -5,13 +5,12 @@ import Libreria.Sala;
 import java.awt.Color;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 
 public class SalaServidor implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    public List<ClienteServidor> jugadores;
+    public ArrayList<ClienteServidor> jugadores;
     public Sala pacLobby;
 
     public SalaServidor(Sala sala)
