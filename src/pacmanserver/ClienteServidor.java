@@ -266,7 +266,7 @@ public class ClienteServidor implements Runnable
                 {
                     try
                     {
-                        Thread.sleep(500);
+                        Thread.sleep(5);
 
                         if (intJuego)
                         {
