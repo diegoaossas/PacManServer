@@ -122,7 +122,8 @@ public class ClienteServidor implements Runnable
                 usu.Nombre = cred.usuario;
                 usuarioLog = usu;
                 Servidor.usuariosRegistrados.add(usu);
-
+                Servidor.guardaUsuarios();
+                
                 out.writeObject(Respuesta.REGISTRADO);
                 out.writeObject(getUsuarioLog());
             }
@@ -217,7 +218,7 @@ public class ClienteServidor implements Runnable
                             break;
                         }
 
-                        Sala sala = Servidor.listaSalas.getSala(id);
+                        Sala sala = Servidor.listaSalas.getSala(id).clone();
 
                         if (salaAnterior == null)
                         {
@@ -318,7 +319,12 @@ public class ClienteServidor implements Runnable
                         
                         if(sala.pelletsRestantes < 1)
                         {
-                            out.writeObject(Respuesta.JUEGOTERMINADO);
+                            sala.fant1.intMovimiento = true;
+                            sala.fant2.intMovimiento = true;
+                            sala.fant3.intMovimiento = true;
+                            sala.fant4.intMovimiento = true;
+                            while(sala.fant1.movimiento.isAlive() || sala.fant2.movimiento.isAlive() || sala.fant3.movimiento.isAlive() || sala.fant4.movimiento.isAlive() );
+                            
                             Usuario ganador = getUsuarioLog();
                             
                             for(Usuario usu : sala.jugadores)
@@ -332,14 +338,17 @@ public class ClienteServidor implements Runnable
                                 if(usu.puntosPaco > ganador.puntosPaco)
                                     ganador = usu;
                             }
+                            
                             ganador.pGanadas++;
                             ganador.pPerdidas--;
                             
+                            out.writeObject(Respuesta.JUEGOTERMINADO);
                             out.writeObject(ganador);
                             
                             Thread.currentThread().interrupt();
                             salaServ.QuitarJugador(this);
                             Servidor.listaSalas.verificarValidez(salaServ);
+                            Servidor.guardaUsuarios();
                             break;
                         }
 
