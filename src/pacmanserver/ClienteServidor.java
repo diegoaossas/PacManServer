@@ -449,16 +449,14 @@ public class ClienteServidor implements Runnable
             {
                 salaServ = Servidor.listaSalas.getSalaServidor(id);
                 sala = salaServ.pacLobby;
+                
+                paco = (Pacman) in.readObject();
+                modifPuntos = (int) in.readObject();
             }
             catch(NoSuchElementException | NullPointerException nsex)
             {
                 nsex.printStackTrace();
                 return;
-            }
-            finally
-            {
-                paco = (Pacman) in.readObject();
-                modifPuntos = (int) in.readObject();
             }
 
             char type = sala.cellsMapa[paco.pacmanRow][paco.pacmanCol].getType();
@@ -481,38 +479,44 @@ public class ClienteServidor implements Runnable
             }
             else if (type == 'n')
             {
-                sala.cellsMapa[paco.pacmanRow][paco.pacmanCol].type = 'v';
-                sala.pelletsRestantes--;
-                getUsuarioLog().puntosPaco += 50;
-                paco.powerUP = true;                
-                
-                out.writeObject(Respuesta.PLAYSONIDO);
-                out.writeObject("POWER");
+                if(!paco.powerUP)
+                {
+                    sala.cellsMapa[paco.pacmanRow][paco.pacmanCol].type = 'v';
+                    sala.pelletsRestantes--;
+                    getUsuarioLog().puntosPaco += 50;
+                    paco.powerUP = true;
+
+                    out.writeObject(Respuesta.PLAYSONIDO);
+                    out.writeObject("POWER");
+                }
             }
             
             if (paco.powerUP)
             {
                 Jugadores jugadores = salaServ.pacLobby.jugadores;
+                Pacman pacoYo = null;
                 
                 for (int i = 0; i < jugadores.size(); i++)
                 {
                     if (!jugadores.get(i).equals(getUsuarioLog()))
                     {
-                        if (jugadores.get(i).paco.chocan(paco))
+                        Pacman pacoTmp = jugadores.get(i).paco;
+                        
+                        if (pacoTmp.chocan(paco))
                         {
-                            if(jugadores.get(i).paco.livesLeft < 1)
+                            if(pacoTmp.livesLeft < 1)
                             {
-                                if(jugadores.get(i).paco.puntos > 1000)
-                                    jugadores.get(i).paco.puntos -= 1000;
+                                if(pacoTmp.puntos > 1000)
+                                    pacoTmp.puntos -= 1000;
                                 else
-                                    jugadores.get(i).paco.puntos -= jugadores.get(i).paco.puntos;
+                                    pacoTmp.puntos -= jugadores.get(i).paco.puntos;
                             }
                             else
                             {
-                                jugadores.get(i).paco.livesLeft--;
+                                pacoTmp.livesLeft--;
                             }
                             
-                            jugadores.get(i).paco.ubicados = false;
+                            pacoTmp.comido();
                             paco.powerUP = false;
                                             
                             salaServ.jugadores.get(i).out.writeObject(Respuesta.PLAYSONIDO);
@@ -521,18 +525,7 @@ public class ClienteServidor implements Runnable
                     }
                 }
                 
-                if(sala.compruebaColision(paco))
-                {                            
-                    if (!paco.powerUP)
-                    {
-                        paco.moviendose = false;
-                        paco.ubicados = false;
-                    }
-                    else
-                    {
-                        paco.powerUP = false;
-                    }
-                }
+                sala.compruebaColision(paco);
             }
             
             getUsuarioLog().puntosPaco += modifPuntos;
